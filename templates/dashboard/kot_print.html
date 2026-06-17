@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>KOT #{{ order.id }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top left, rgba(215, 168, 110, .35), transparent 30%),
+                linear-gradient(135deg, #fff7ed, #f4eadc);
+            font-family: Arial, sans-serif;
+            padding: 28px;
+            color: #1c120d;
+        }
+
+        .print-actions {
+            text-align: center;
+            margin-bottom: 22px;
+        }
+
+        .print-actions button {
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #1c120d, #4b2c1b);
+            color: white;
+            padding: 13px 26px;
+            font-size: 14px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 14px 32px rgba(44, 24, 16, .25);
+        }
+
+        .kot-slip {
+            width: 370px;
+            margin: auto;
+            background: #fffdf8;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 2px dashed #4b2c1b;
+            box-shadow: 0 22px 55px rgba(44,24,16,.22);
+            position: relative;
+        }
+
+        .kot-slip::before {
+            content: "☕";
+            position: absolute;
+            right: -8px;
+            top: 75px;
+            font-size: 95px;
+            opacity: .05;
+            z-index: 1;
+        }
+
+        .kot-header {
+            background:
+                linear-gradient(135deg, rgba(28,18,13,.97), rgba(75,44,27,.94));
+            color: white;
+            text-align: center;
+            padding: 24px 18px 22px;
+            position: relative;
+        }
+
+        .kot-header::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: -1px;
+            width: 100%;
+            height: 16px;
+            background: #fffdf8;
+            border-radius: 100% 100% 0 0;
+        }
+
+        .kot-icon {
+            width: 58px;
+            height: 58px;
+            margin: 0 auto 11px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #d7a86e, #b77945);
+            color: #1c120d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 900;
+            box-shadow: 0 12px 28px rgba(215,168,110,.25);
+        }
+
+        .kot-header h2 {
+            margin: 0;
+            font-size: 23px;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .kot-header p {
+            margin: 6px 0 0;
+            font-size: 12px;
+            color: #ead6c4;
+            font-weight: 800;
+            letter-spacing: .4px;
+        }
+
+        .kot-body {
+            padding: 22px 18px 18px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .kot-info {
+            background: #fff3df;
+            border: 1px solid #ead6c4;
+            border-radius: 18px;
+            padding: 13px;
+            margin-bottom: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 7px 0;
+            font-size: 14px;
+            border-bottom: 1px dashed #e3c5a8;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row strong {
+            color: #7a4c2d;
+            font-weight: 900;
+        }
+
+        .info-row span {
+            font-weight: 900;
+            color: #1c120d;
+        }
+
+        .divider {
+            border-top: 2px dashed #b68b6a;
+            margin: 15px 0;
+        }
+
+        .items-title {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 1.7px;
+            color: #4b2c1b;
+            margin-bottom: 13px;
+        }
+
+        .kot-item {
+            border: 1px solid #ead6c4;
+            background: #fffdf8;
+            border-radius: 18px;
+            padding: 13px;
+            margin-bottom: 11px;
+            box-shadow: 0 8px 22px rgba(44,24,16,.06);
+        }
+
+        .item-name {
+            font-size: 17px;
+            font-weight: 900;
+            color: #1c120d;
+            margin-bottom: 9px;
+            line-height: 1.35;
+        }
+
+        .qty-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff8ef;
+            border-radius: 14px;
+            padding: 8px 10px;
+        }
+
+        .qty-label {
+            color: #8a7768;
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+        .qty-number {
+            background: #1c120d;
+            color: white;
+            border-radius: 13px;
+            padding: 7px 14px;
+            font-size: 19px;
+            font-weight: 900;
+        }
+
+        .note-box {
+            background: #fffbeb;
+            border: 2px dashed #d97706;
+            color: #92400e;
+            border-radius: 18px;
+            padding: 13px;
+            margin-top: 15px;
+            font-size: 14px;
+            font-weight: 900;
+            line-height: 1.5;
+        }
+
+        .kot-footer {
+            text-align: center;
+            padding: 13px 8px 4px;
+            color: #4b2c1b;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: .7px;
+        }
+
+        .kot-footer span {
+            display: inline-block;
+            background: #fff3df;
+            border: 1px solid #ead6c4;
+            border-radius: 999px;
+            padding: 8px 14px;
+        }
+
+        @media print {
+            body {
+                background: white !important;
+                padding: 0 !important;
+            }
+
+            .print-actions {
+                display: none !important;
+            }
+
+            .kot-slip {
+                width: 100%;
+                border-radius: 0;
+                box-shadow: none;
+                border: none;
+            }
+
+            .kot-slip::before {
+                display: none;
+            }
+
+            .kot-header {
+                background: #1c120d !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .qty-number {
+                background: #1c120d !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            @page {
+                size: 80mm auto;
+                margin: 5mm;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="print-actions">
+    <button onclick="window.print()">Print KOT</button>
+</div>
+
+<div class="kot-slip">
+
+    <div class="kot-header">
+        <div class="kot-icon">K</div>
+        <h2>KITCHEN ORDER</h2>
+        <p>KOT Slip • Send to Kitchen</p>
+    </div>
+
+    <div class="kot-body">
+
+        <div class="kot-info">
+            <div class="info-row">
+                <strong>KOT No</strong>
+                <span>#{{ order.id }}</span>
+            </div>
+
+            <div class="info-row">
+                <strong>Table</strong>
+                <span>{{ order.table.table_number }}</span>
+            </div>
+
+            <div class="info-row">
+                <strong>Status</strong>
+                <span>{{ order.status }}</span>
+            </div>
+
+            <div class="info-row">
+                <strong>Time</strong>
+                <span>{{ order.created_at|date:"h:i A" }}</span>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="items-title">ITEMS TO PREPARE</div>
+
+        {% for item in order.items.all %}
+        <div class="kot-item">
+            <div class="item-name">{{ item.menu_item.name }}</div>
+
+            <div class="qty-row">
+                <span class="qty-label">Quantity</span>
+                <span class="qty-number">× {{ item.quantity }}</span>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if order.note %}
+        <div class="note-box">
+            NOTE: {{ order.note }}
+        </div>
+        {% endif %}
+
+        <div class="divider"></div>
+
+        <div class="kot-footer">
+            <span>PREPARE IMMEDIATELY</span>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

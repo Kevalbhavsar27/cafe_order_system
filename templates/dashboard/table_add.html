@@ -1,0 +1,441 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Add Table{% endblock %}
+{% block page_title %}Add Table{% endblock %}
+{% block page_subtitle %}Create a new cafe table for QR ordering{% endblock %}
+
+{% block content %}
+
+<style>
+    .table-page { animation: fadeInUp .45s ease; }
+
+    .table-hero {
+        background:
+            linear-gradient(135deg, rgba(28,18,13,.92), rgba(75,44,27,.82)),
+            url("https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80");
+        background-size: cover;
+        background-position: center;
+        border-radius: 30px;
+        padding: 30px;
+        color: #fff8ef;
+        box-shadow: 0 22px 55px rgba(44,24,16,.22);
+        margin-bottom: 26px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .table-hero::after {
+        content: "▦";
+        position: absolute;
+        right: 35px;
+        top: -10px;
+        font-size: 130px;
+        opacity: .13;
+        font-weight: 900;
+    }
+
+    .hero-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.13);
+        border: 1px solid rgba(255,255,255,.18);
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 14px;
+    }
+
+    .table-hero h2 {
+        font-size: 34px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .table-hero p {
+        margin: 0;
+        color: #ead6c4;
+        max-width: 680px;
+        font-weight: 500;
+    }
+
+    .table-layout {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 24px;
+        align-items: start;
+    }
+
+    .table-preview,
+    .table-card {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 30px;
+        padding: 28px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+    }
+
+    .table-preview {
+        position: sticky;
+        top: 120px;
+        text-align: center;
+    }
+
+    .table-circle {
+        width: 145px;
+        height: 145px;
+        margin: 0 auto 18px;
+        border-radius: 38px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        box-shadow: 0 16px 35px rgba(75,44,27,.25);
+    }
+
+    .table-circle small {
+        font-size: 12px;
+        font-weight: 900;
+        opacity: .9;
+    }
+
+    .table-circle strong {
+        font-size: 42px;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    .table-preview h4 {
+        color: #1c120d;
+        font-size: 22px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .preview-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        margin-top: 10px;
+        background: #fff3df;
+        color: #4b2c1b;
+        border: 1px solid #ead6c4;
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .status-preview.active {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .status-preview.inactive {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 22px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #ead6c4;
+    }
+
+    .section-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 17px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+
+    .section-title h5 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 900;
+        color: #1c120d;
+    }
+
+    .section-title span {
+        color: #8a7768;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .form-label {
+        font-weight: 800;
+        color: #4b2c1b;
+        margin-bottom: 8px;
+    }
+
+    .input-icon-box { position: relative; }
+
+    .input-icon-box i {
+        position: absolute;
+        left: 15px;
+        top: 44px;
+        color: #b77945;
+        font-size: 18px;
+    }
+
+    .table-card .form-control {
+        border-radius: 16px;
+        border: 1px solid #ead6c4;
+        background: #fffdf8;
+        padding: 13px 15px 13px 44px;
+        font-weight: 600;
+        color: #2b160c;
+    }
+
+    .table-card .form-control:focus {
+        border-color: #d7a86e;
+        box-shadow: 0 0 0 .2rem rgba(215,168,110,.25);
+    }
+
+    .active-box {
+        background: #fff8ef;
+        border: 1px solid #ead6c4;
+        border-radius: 22px;
+        padding: 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .active-box h6 {
+        font-weight: 900;
+        color: #1c120d;
+        margin-bottom: 4px;
+    }
+
+    .active-box p {
+        margin: 0;
+        color: #8a7768;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .form-switch .form-check-input {
+        width: 3.2rem;
+        height: 1.6rem;
+        cursor: pointer;
+    }
+
+    .form-switch .form-check-input:checked {
+        background-color: #4b2c1b;
+        border-color: #4b2c1b;
+    }
+
+    .form-actions {
+        margin-top: 24px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        border-top: 1px solid #ead6c4;
+        padding-top: 22px;
+    }
+
+    .save-btn {
+        border: none;
+        border-radius: 16px;
+        padding: 12px 22px;
+        font-weight: 900;
+        color: white;
+        background: linear-gradient(135deg, #4b2c1b, #8b5e3c);
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+    }
+
+    .back-btn {
+        border-radius: 16px;
+        padding: 12px 18px;
+        font-weight: 800;
+        border: 1px solid #ead6c4;
+        background: #fff8ef;
+        color: #4b2c1b;
+        text-decoration: none;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(14px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 992px) {
+        .table-layout { grid-template-columns: 1fr; }
+        .table-preview { position: relative; top: 0; }
+    }
+
+    @media (max-width: 576px) {
+        .table-hero,
+        .table-card,
+        .table-preview { padding: 22px; }
+
+        .table-hero h2 { font-size: 26px; }
+
+        .active-box {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .form-actions a,
+        .form-actions button {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="table-page">
+
+    <div class="table-hero">
+        <div class="hero-label">
+            <i class="bi bi-table"></i>
+            Cafe Table Setup
+        </div>
+        <h2>Add New Table</h2>
+        <p>Create table records for QR menu ordering, customer seating and order tracking.</p>
+    </div>
+
+    <div class="table-layout">
+
+        <div class="table-preview">
+            <div class="table-circle">
+                <small>TABLE</small>
+                <strong id="previewNumber">#</strong>
+            </div>
+
+            <h4 id="previewName">Table Name</h4>
+
+            <div class="preview-pill">
+                <i class="bi bi-people"></i>
+                <span id="previewCapacity">2 Seats</span>
+            </div>
+
+            <br>
+
+            <div id="statusPreview" class="preview-pill status-preview active">
+                <i class="bi bi-check-circle"></i>
+                <span>Active Table</span>
+            </div>
+        </div>
+
+        <div class="table-card">
+
+            <div class="section-title">
+                <div class="section-icon">
+                    <i class="bi bi-plus-circle"></i>
+                </div>
+                <div>
+                    <h5>Table Information</h5>
+                    <span>Fill table number, name, capacity and active status.</span>
+                </div>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="row g-4">
+
+                    <div class="col-md-6 input-icon-box">
+                        <label class="form-label">Table Number</label>
+                        <i class="bi bi-hash"></i>
+                        <input type="number" name="table_number" id="tableNumberInput" class="form-control" placeholder="Example: 1" required>
+                    </div>
+
+                    <div class="col-md-6 input-icon-box">
+                        <label class="form-label">Table Name</label>
+                        <i class="bi bi-card-heading"></i>
+                        <input type="text" name="table_name" id="tableNameInput" class="form-control" placeholder="Window Table">
+                    </div>
+
+                    <div class="col-md-12 input-icon-box">
+                        <label class="form-label">Capacity</label>
+                        <i class="bi bi-people"></i>
+                        <input type="number" name="capacity" id="capacityInput" class="form-control" value="2">
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="active-box">
+                            <div>
+                                <h6>Table Status</h6>
+                                <p>Turn off if this table should not be visible or usable for orders.</p>
+                            </div>
+
+                            <div class="form-check form-switch m-0">
+                                <input type="checkbox" name="is_active" id="activeSwitch" class="form-check-input" checked>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+                    <a href="{% url 'tables_list' %}" class="back-btn">
+                        <i class="bi bi-arrow-left"></i>
+                        Back
+                    </a>
+
+                    <button class="save-btn" type="submit">
+                        <i class="bi bi-check-circle"></i>
+                        Save Table
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const tableNumberInput = document.getElementById("tableNumberInput");
+        const tableNameInput = document.getElementById("tableNameInput");
+        const capacityInput = document.getElementById("capacityInput");
+        const activeSwitch = document.getElementById("activeSwitch");
+
+        const previewNumber = document.getElementById("previewNumber");
+        const previewName = document.getElementById("previewName");
+        const previewCapacity = document.getElementById("previewCapacity");
+        const statusPreview = document.getElementById("statusPreview");
+
+        tableNumberInput.addEventListener("input", function () {
+            previewNumber.innerText = this.value || "#";
+        });
+
+        tableNameInput.addEventListener("input", function () {
+            previewName.innerText = this.value || "Table Name";
+        });
+
+        capacityInput.addEventListener("input", function () {
+            previewCapacity.innerText = (this.value || "0") + " Seats";
+        });
+
+        activeSwitch.addEventListener("change", function () {
+            if (this.checked) {
+                statusPreview.className = "preview-pill status-preview active";
+                statusPreview.innerHTML = `<i class="bi bi-check-circle"></i><span>Active Table</span>`;
+            } else {
+                statusPreview.className = "preview-pill status-preview inactive";
+                statusPreview.innerHTML = `<i class="bi bi-x-circle"></i><span>Inactive Table</span>`;
+            }
+        });
+    });
+</script>
+
+{% endblock %}

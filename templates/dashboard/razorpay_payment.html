@@ -1,0 +1,334 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Online Payment{% endblock %}
+{% block page_title %}Online Payment{% endblock %}
+{% block page_subtitle %}Collect payment using Razorpay{% endblock %}
+
+{% block content %}
+
+<style>
+    .payment-page {
+        animation: fadeInUp .45s ease;
+    }
+
+    .payment-hero {
+        background:
+            linear-gradient(135deg, rgba(28,18,13,.92), rgba(75,44,27,.82)),
+            url("https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=1200&q=80");
+        background-size: cover;
+        background-position: center;
+        border-radius: 30px;
+        padding: 30px;
+        color: #fff8ef;
+        box-shadow: 0 22px 55px rgba(44,24,16,.22);
+        margin-bottom: 26px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .payment-hero::after {
+        content: "₹";
+        position: absolute;
+        right: 35px;
+        top: -10px;
+        font-size: 130px;
+        opacity: .13;
+        font-weight: 900;
+    }
+
+    .hero-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.13);
+        border: 1px solid rgba(255,255,255,.18);
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 14px;
+    }
+
+    .payment-hero h2 {
+        font-size: 34px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .payment-hero p {
+        margin: 0;
+        color: #ead6c4;
+        max-width: 680px;
+        font-weight: 500;
+    }
+
+    .payment-card {
+        max-width: 760px;
+        margin: auto;
+        background: rgba(255,255,255,.92);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 30px;
+        padding: 30px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .payment-card::after {
+        content: "💳";
+        position: absolute;
+        right: -5px;
+        top: -22px;
+        font-size: 105px;
+        opacity: .06;
+    }
+
+    .payment-header {
+        text-align: center;
+        margin-bottom: 26px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .payment-icon {
+        width: 78px;
+        height: 78px;
+        margin: 0 auto 15px;
+        border-radius: 26px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 34px;
+        box-shadow: 0 16px 35px rgba(75,44,27,.25);
+    }
+
+    .payment-header h3 {
+        color: #1c120d;
+        font-weight: 900;
+        margin-bottom: 6px;
+    }
+
+    .payment-header p {
+        color: #8a7768;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .bill-box {
+        background: #fff8ef;
+        border: 1px solid #ead6c4;
+        border-radius: 24px;
+        padding: 22px;
+        margin-bottom: 24px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .bill-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 10px 0;
+        border-bottom: 1px dashed #ead6c4;
+        font-weight: 800;
+        color: #4b2c1b;
+    }
+
+    .bill-row:last-child {
+        border-bottom: none;
+    }
+
+    .bill-row span {
+        color: #8a7768;
+    }
+
+    .amount-row {
+        margin-top: 10px;
+        padding-top: 16px;
+        border-top: 2px dashed #d7a86e;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .amount-row span {
+        font-size: 18px;
+        font-weight: 900;
+        color: #1c120d;
+    }
+
+    .amount-row strong {
+        font-size: 34px;
+        font-weight: 900;
+        color: #15803d;
+    }
+
+    .secure-box {
+        background: #ecfdf5;
+        border: 1px solid #bbf7d0;
+        color: #166534;
+        border-radius: 20px;
+        padding: 14px 16px;
+        font-size: 14px;
+        font-weight: 800;
+        margin-bottom: 24px;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        position: relative;
+        z-index: 2;
+    }
+
+    .payment-action {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+    }
+
+    .payment-action .razorpay-payment-button {
+        width: 100%;
+        border: none !important;
+        border-radius: 18px !important;
+        padding: 15px 24px !important;
+        font-size: 16px !important;
+        font-weight: 900 !important;
+        color: white !important;
+        background: linear-gradient(135deg, #15803d, #16a34a) !important;
+        box-shadow: 0 14px 32px rgba(21,128,61,.22) !important;
+        transition: .25s ease !important;
+    }
+
+    .payment-action .razorpay-payment-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 18px 38px rgba(21,128,61,.30) !important;
+    }
+
+    .back-btn {
+        margin-top: 14px;
+        border-radius: 16px;
+        padding: 12px 18px;
+        font-weight: 800;
+        border: 1px solid #ead6c4;
+        background: #fff8ef;
+        color: #4b2c1b;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .back-btn:hover {
+        background: #fff3df;
+        color: #4b2c1b;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 576px) {
+        .payment-hero,
+        .payment-card {
+            padding: 22px;
+        }
+
+        .payment-hero h2 {
+            font-size: 26px;
+        }
+
+        .amount-row strong {
+            font-size: 28px;
+        }
+    }
+</style>
+
+<div class="payment-page">
+
+    <div class="payment-hero">
+        <div class="hero-label">
+            <i class="bi bi-shield-check"></i>
+            Secure Online Payment
+        </div>
+        <h2>Collect Payment</h2>
+        <p>
+            Accept fast and secure online payment for this cafe order using Razorpay checkout.
+        </p>
+    </div>
+
+    <div class="payment-card">
+
+        <div class="payment-header">
+            <div class="payment-icon">
+                <i class="bi bi-credit-card-2-front"></i>
+            </div>
+
+            <h3>Online Payment</h3>
+            <p>Order #{{ order.id }} • Table {{ order.table.table_number }}</p>
+        </div>
+
+        <div class="bill-box">
+            <div class="bill-row">
+                <span>Bill Number</span>
+                <strong>{{ bill.bill_number }}</strong>
+            </div>
+
+            <div class="bill-row">
+                <span>Order ID</span>
+                <strong>#{{ order.id }}</strong>
+            </div>
+
+            <div class="bill-row">
+                <span>Table</span>
+                <strong>{{ order.table.table_number }}</strong>
+            </div>
+
+            <div class="amount-row">
+                <span>Amount Payable</span>
+                <strong>₹{{ bill.grand_total }}</strong>
+            </div>
+        </div>
+
+        <div class="secure-box">
+            <i class="bi bi-lock-fill"></i>
+            <div>
+                Payment is processed securely through Razorpay. After successful payment,
+                the order will be verified and updated automatically.
+            </div>
+        </div>
+
+        <div class="payment-action">
+            <form action="{% url 'razorpay_verify_payment' order.id %}" method="POST">
+                {% csrf_token %}
+                <script
+                    src="https://checkout.razorpay.com/v1/checkout.js"
+                    data-key="{{ razorpay_key_id }}"
+                    data-amount="{{ amount_paise }}"
+                    data-currency="INR"
+                    data-order_id="{{ razorpay_order_id }}"
+                    data-buttontext="Pay ₹{{ bill.grand_total }}"
+                    data-name="Cafe QR Ordering"
+                    data-description="Order #{{ order.id }}"
+                    data-theme.color="#4b2c1b">
+                </script>
+            </form>
+
+            <a href="{% url 'billing_detail' order.id %}" class="back-btn">
+                <i class="bi bi-arrow-left"></i>
+                Back to Bill
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

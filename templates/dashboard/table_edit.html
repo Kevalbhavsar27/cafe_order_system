@@ -1,0 +1,510 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Edit Table{% endblock %}
+{% block page_title %}Edit Table{% endblock %}
+{% block page_subtitle %}Update table details, status, capacity and active visibility{% endblock %}
+
+{% block content %}
+
+<style>
+    .table-page { animation: fadeInUp .45s ease; }
+
+    .table-hero {
+        background:
+            linear-gradient(135deg, rgba(28,18,13,.92), rgba(75,44,27,.82)),
+            url("https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80");
+        background-size: cover;
+        background-position: center;
+        border-radius: 30px;
+        padding: 30px;
+        color: #fff8ef;
+        box-shadow: 0 22px 55px rgba(44,24,16,.22);
+        margin-bottom: 26px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .table-hero::after {
+        content: "✎";
+        position: absolute;
+        right: 35px;
+        top: -10px;
+        font-size: 130px;
+        opacity: .13;
+        font-weight: 900;
+    }
+
+    .hero-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.13);
+        border: 1px solid rgba(255,255,255,.18);
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 14px;
+    }
+
+    .table-hero h2 {
+        font-size: 34px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .table-hero p {
+        margin: 0;
+        color: #ead6c4;
+        max-width: 680px;
+        font-weight: 500;
+    }
+
+    .table-layout {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 24px;
+        align-items: start;
+    }
+
+    .table-preview,
+    .table-card {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 30px;
+        padding: 28px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+    }
+
+    .table-preview {
+        position: sticky;
+        top: 120px;
+        text-align: center;
+    }
+
+    .table-circle {
+        width: 145px;
+        height: 145px;
+        margin: 0 auto 18px;
+        border-radius: 38px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        box-shadow: 0 16px 35px rgba(75,44,27,.25);
+    }
+
+    .table-circle small {
+        font-size: 12px;
+        font-weight: 900;
+        opacity: .9;
+    }
+
+    .table-circle strong {
+        font-size: 42px;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    .table-preview h4 {
+        color: #1c120d;
+        font-size: 22px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .preview-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        margin-top: 10px;
+        background: #fff3df;
+        color: #4b2c1b;
+        border: 1px solid #ead6c4;
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .status-available {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .status-occupied {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .status-bill_pending {
+        background: #fef3c7;
+        color: #a16207;
+    }
+
+    .status-cleaning {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .active-status.active {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .active-status.inactive {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 22px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #ead6c4;
+    }
+
+    .section-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 17px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+
+    .section-title h5 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 900;
+        color: #1c120d;
+    }
+
+    .section-title span {
+        color: #8a7768;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .form-label {
+        font-weight: 800;
+        color: #4b2c1b;
+        margin-bottom: 8px;
+    }
+
+    .input-icon-box { position: relative; }
+
+    .input-icon-box i {
+        position: absolute;
+        left: 15px;
+        top: 44px;
+        color: #b77945;
+        font-size: 18px;
+    }
+
+    .table-card .form-control,
+    .table-card .form-select {
+        border-radius: 16px;
+        border: 1px solid #ead6c4;
+        background: #fffdf8;
+        padding: 13px 15px 13px 44px;
+        font-weight: 600;
+        color: #2b160c;
+    }
+
+    .table-card .form-control:focus,
+    .table-card .form-select:focus {
+        border-color: #d7a86e;
+        box-shadow: 0 0 0 .2rem rgba(215,168,110,.25);
+    }
+
+    .active-box {
+        background: #fff8ef;
+        border: 1px solid #ead6c4;
+        border-radius: 22px;
+        padding: 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .active-box h6 {
+        font-weight: 900;
+        color: #1c120d;
+        margin-bottom: 4px;
+    }
+
+    .active-box p {
+        margin: 0;
+        color: #8a7768;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .form-switch .form-check-input {
+        width: 3.2rem;
+        height: 1.6rem;
+        cursor: pointer;
+    }
+
+    .form-switch .form-check-input:checked {
+        background-color: #4b2c1b;
+        border-color: #4b2c1b;
+    }
+
+    .form-actions {
+        margin-top: 24px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        border-top: 1px solid #ead6c4;
+        padding-top: 22px;
+    }
+
+    .save-btn {
+        border: none;
+        border-radius: 16px;
+        padding: 12px 22px;
+        font-weight: 900;
+        color: white;
+        background: linear-gradient(135deg, #4b2c1b, #8b5e3c);
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+    }
+
+    .back-btn {
+        border-radius: 16px;
+        padding: 12px 18px;
+        font-weight: 800;
+        border: 1px solid #ead6c4;
+        background: #fff8ef;
+        color: #4b2c1b;
+        text-decoration: none;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(14px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 992px) {
+        .table-layout { grid-template-columns: 1fr; }
+        .table-preview { position: relative; top: 0; }
+    }
+
+    @media (max-width: 576px) {
+        .table-hero,
+        .table-card,
+        .table-preview { padding: 22px; }
+
+        .table-hero h2 { font-size: 26px; }
+
+        .active-box {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .form-actions a,
+        .form-actions button {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="table-page">
+
+    <div class="table-hero">
+        <div class="hero-label">
+            <i class="bi bi-pencil-square"></i>
+            Edit Cafe Table
+        </div>
+        <h2>Update Table {{ table.table_number }}</h2>
+        <p>Modify table number, table name, capacity, current status and active visibility.</p>
+    </div>
+
+    <div class="table-layout">
+
+        <div class="table-preview">
+            <div class="table-circle">
+                <small>TABLE</small>
+                <strong id="previewNumber">{{ table.table_number }}</strong>
+            </div>
+
+            <h4 id="previewName">{{ table.table_name|default:"Table Name" }}</h4>
+
+            <div class="preview-pill">
+                <i class="bi bi-people"></i>
+                <span id="previewCapacity">{{ table.capacity }} Seats</span>
+            </div>
+
+            <br>
+
+            <div id="statusPreview" class="preview-pill status-{{ table.status|lower }}">
+                <i class="bi bi-info-circle"></i>
+                <span>{{ table.status }}</span>
+            </div>
+
+            <br>
+
+            <div id="activePreview" class="preview-pill active-status {% if table.is_active %}active{% else %}inactive{% endif %}">
+                <i class="bi {% if table.is_active %}bi-check-circle{% else %}bi-x-circle{% endif %}"></i>
+                <span>{% if table.is_active %}Active Table{% else %}Inactive Table{% endif %}</span>
+            </div>
+        </div>
+
+        <div class="table-card">
+
+            <div class="section-title">
+                <div class="section-icon">
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+                <div>
+                    <h5>Table Information</h5>
+                    <span>Update table details and status below.</span>
+                </div>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="row g-4">
+
+                    <div class="col-md-6 input-icon-box">
+                        <label class="form-label">Table Number</label>
+                        <i class="bi bi-hash"></i>
+                        <input type="number"
+                               name="table_number"
+                               id="tableNumberInput"
+                               class="form-control"
+                               value="{{ table.table_number }}"
+                               required>
+                    </div>
+
+                    <div class="col-md-6 input-icon-box">
+                        <label class="form-label">Table Name</label>
+                        <i class="bi bi-card-heading"></i>
+                        <input type="text"
+                               name="table_name"
+                               id="tableNameInput"
+                               class="form-control"
+                               value="{{ table.table_name }}">
+                    </div>
+
+                    <div class="col-md-6 input-icon-box">
+                        <label class="form-label">Capacity</label>
+                        <i class="bi bi-people"></i>
+                        <input type="number"
+                               name="capacity"
+                               id="capacityInput"
+                               class="form-control"
+                               value="{{ table.capacity }}">
+                    </div>
+
+                    <div class="col-md-6 input-icon-box">
+                        <label class="form-label">Table Status</label>
+                        <i class="bi bi-activity"></i>
+                        <select name="status"
+                                id="statusInput"
+                                class="form-select">
+                            <option value="AVAILABLE" {% if table.status == "AVAILABLE" %}selected{% endif %}>Available</option>
+                            <option value="OCCUPIED" {% if table.status == "OCCUPIED" %}selected{% endif %}>Occupied</option>
+                            <option value="BILL_PENDING" {% if table.status == "BILL_PENDING" %}selected{% endif %}>Bill Pending</option>
+                            <option value="CLEANING" {% if table.status == "CLEANING" %}selected{% endif %}>Cleaning</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="active-box">
+                            <div>
+                                <h6>Table Visibility</h6>
+                                <p>Turn off if this table should not be visible or usable for orders.</p>
+                            </div>
+
+                            <div class="form-check form-switch m-0">
+                                <input type="checkbox"
+                                       name="is_active"
+                                       id="activeSwitch"
+                                       class="form-check-input"
+                                       {% if table.is_active %}checked{% endif %}>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+                    <a href="{% url 'tables_list' %}" class="back-btn">
+                        <i class="bi bi-arrow-left"></i>
+                        Back
+                    </a>
+
+                    <button class="save-btn" type="submit">
+                        <i class="bi bi-check-circle"></i>
+                        Update Table
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const tableNumberInput = document.getElementById("tableNumberInput");
+        const tableNameInput = document.getElementById("tableNameInput");
+        const capacityInput = document.getElementById("capacityInput");
+        const statusInput = document.getElementById("statusInput");
+        const activeSwitch = document.getElementById("activeSwitch");
+
+        const previewNumber = document.getElementById("previewNumber");
+        const previewName = document.getElementById("previewName");
+        const previewCapacity = document.getElementById("previewCapacity");
+        const statusPreview = document.getElementById("statusPreview");
+        const activePreview = document.getElementById("activePreview");
+
+        tableNumberInput.addEventListener("input", function () {
+            previewNumber.innerText = this.value || "#";
+        });
+
+        tableNameInput.addEventListener("input", function () {
+            previewName.innerText = this.value || "Table Name";
+        });
+
+        capacityInput.addEventListener("input", function () {
+            previewCapacity.innerText = (this.value || "0") + " Seats";
+        });
+
+        statusInput.addEventListener("change", function () {
+            const value = this.value.toLowerCase();
+            const text = this.options[this.selectedIndex].text;
+
+            statusPreview.className = "preview-pill status-" + value;
+            statusPreview.innerHTML = `<i class="bi bi-info-circle"></i><span>${text}</span>`;
+        });
+
+        activeSwitch.addEventListener("change", function () {
+            if (this.checked) {
+                activePreview.className = "preview-pill active-status active";
+                activePreview.innerHTML = `<i class="bi bi-check-circle"></i><span>Active Table</span>`;
+            } else {
+                activePreview.className = "preview-pill active-status inactive";
+                activePreview.innerHTML = `<i class="bi bi-x-circle"></i><span>Inactive Table</span>`;
+            }
+        });
+    });
+</script>
+
+{% endblock %}

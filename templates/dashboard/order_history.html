@@ -1,0 +1,542 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Order History{% endblock %}
+{% block page_title %}Order History{% endblock %}
+{% block page_subtitle %}Search and filter all cafe orders{% endblock %}
+
+{% block content %}
+
+<style>
+    .history-page {
+        animation: fadeInUp .45s ease;
+    }
+
+    .history-hero {
+        background:
+            linear-gradient(135deg, rgba(28,18,13,.92), rgba(75,44,27,.82)),
+            url("https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=80");
+        background-size: cover;
+        background-position: center;
+        border-radius: 30px;
+        padding: 30px;
+        color: #fff8ef;
+        box-shadow: 0 22px 55px rgba(44,24,16,.22);
+        margin-bottom: 26px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .history-hero::after {
+        content: "📜";
+        position: absolute;
+        right: 30px;
+        top: 5px;
+        font-size: 110px;
+        opacity: .13;
+    }
+
+    .hero-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.13);
+        border: 1px solid rgba(255,255,255,.18);
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 14px;
+    }
+
+    .history-hero h2 {
+        font-size: 34px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .history-hero p {
+        margin: 0;
+        color: #ead6c4;
+        max-width: 680px;
+        font-weight: 500;
+    }
+
+    .filter-card,
+    .orders-card {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 30px;
+        padding: 26px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+        margin-bottom: 24px;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        margin-bottom: 22px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #ead6c4;
+    }
+
+    .section-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 17px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+    }
+
+    .section-title h5 {
+        margin: 0;
+        color: #1c120d;
+        font-weight: 900;
+        font-size: 20px;
+    }
+
+    .section-title span {
+        color: #8a7768;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .filter-card .form-label {
+        font-weight: 800;
+        color: #4b2c1b;
+        margin-bottom: 8px;
+    }
+
+    .filter-card .form-control,
+    .filter-card .form-select {
+        border-radius: 16px;
+        border: 1px solid #ead6c4;
+        background: #fffdf8;
+        padding: 12px 14px;
+        font-weight: 700;
+        color: #2b160c;
+    }
+
+    .filter-card .form-control:focus,
+    .filter-card .form-select:focus {
+        border-color: #d7a86e;
+        box-shadow: 0 0 0 .2rem rgba(215,168,110,.25);
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        border: none;
+        border-radius: 16px;
+        padding: 12px 20px;
+        font-weight: 900;
+        color: white;
+        background: linear-gradient(135deg, #4b2c1b, #8b5e3c);
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+        transition: .25s ease;
+    }
+
+    .filter-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 18px 38px rgba(75,44,27,.28);
+    }
+
+    .reset-btn {
+        border-radius: 16px;
+        padding: 12px 18px;
+        font-weight: 800;
+        border: 1px solid #ead6c4;
+        background: #fff8ef;
+        color: #4b2c1b;
+        text-decoration: none;
+    }
+
+    .reset-btn:hover {
+        background: #fff3df;
+        color: #4b2c1b;
+    }
+
+    .orders-table {
+        margin-bottom: 0;
+        border-collapse: separate;
+        border-spacing: 0 12px;
+    }
+
+    .orders-table thead th {
+        background: #fff3df;
+        color: #4b2c1b;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        border: none;
+        padding: 15px;
+        white-space: nowrap;
+    }
+
+    .orders-table thead th:first-child {
+        border-radius: 16px 0 0 16px;
+    }
+
+    .orders-table thead th:last-child {
+        border-radius: 0 16px 16px 0;
+    }
+
+    .orders-table tbody tr {
+        background: #fffdf8;
+        box-shadow: 0 8px 22px rgba(44,24,16,.06);
+        transition: .25s ease;
+    }
+
+    .orders-table tbody tr:hover {
+        transform: scale(1.01);
+        box-shadow: 0 12px 30px rgba(44,24,16,.11);
+    }
+
+    .orders-table tbody td {
+        padding: 15px;
+        border: none;
+        color: #2b160c;
+        font-weight: 650;
+        vertical-align: middle;
+    }
+
+    .orders-table tbody td:first-child {
+        border-radius: 16px 0 0 16px;
+        color: #4b2c1b;
+        font-weight: 900;
+    }
+
+    .orders-table tbody td:last-child {
+        border-radius: 0 16px 16px 0;
+    }
+
+    .customer-name {
+        font-weight: 900;
+        color: #1c120d;
+    }
+
+    .customer-mobile {
+        color: #8a7768;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .status-badge,
+    .payment-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .status-badge::before,
+    .payment-badge::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .status-pending { background: #ffedd5; color: #c2410c; }
+    .status-accepted { background: #dbeafe; color: #1d4ed8; }
+    .status-preparing { background: #fef3c7; color: #a16207; }
+    .status-ready { background: #dcfce7; color: #15803d; }
+    .status-served { background: #e5e7eb; color: #111827; }
+    .status-cancelled { background: #fee2e2; color: #b91c1c; }
+
+    .payment-paid { background: #dcfce7; color: #15803d; }
+    .payment-unpaid { background: #fee2e2; color: #b91c1c; }
+
+    .total-amount {
+        color: #1c120d;
+        font-weight: 900;
+        font-size: 15px;
+    }
+
+    .date-text {
+        color: #6f5b4d;
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .bill-btn {
+        border: none;
+        border-radius: 14px;
+        padding: 9px 14px;
+        font-size: 13px;
+        font-weight: 900;
+        color: white;
+        background: linear-gradient(135deg, #1c120d, #4b2c1b);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        transition: .25s ease;
+        white-space: nowrap;
+    }
+
+    .bill-btn:hover {
+        color: white;
+        transform: translateY(-3px);
+    }
+
+    .empty-orders {
+        padding: 60px 20px;
+        text-align: center;
+        color: #8a7768;
+    }
+
+    .empty-icon {
+        width: 90px;
+        height: 90px;
+        margin: 0 auto 16px;
+        border-radius: 28px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 42px;
+        box-shadow: 0 16px 35px rgba(75,44,27,.22);
+    }
+
+    .empty-orders h5 {
+        color: #1c120d;
+        font-weight: 900;
+        margin-bottom: 6px;
+    }
+
+    .empty-orders p {
+        font-weight: 600;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .history-hero,
+        .filter-card,
+        .orders-card {
+            padding: 22px;
+        }
+
+        .history-hero h2 {
+            font-size: 26px;
+        }
+
+        .filter-actions,
+        .filter-btn,
+        .reset-btn {
+            width: 100%;
+        }
+
+        .filter-btn,
+        .reset-btn {
+            text-align: center;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="history-page">
+
+    <div class="history-hero">
+        <div class="hero-label">
+            <i class="bi bi-clock-history"></i>
+            Cafe Order Records
+        </div>
+        <h2>Order History</h2>
+        <p>
+            Search, filter and review all customer orders, payments, tables, bills and order statuses.
+        </p>
+    </div>
+
+    <div class="filter-card">
+
+        <div class="section-title">
+            <div class="section-icon">
+                <i class="bi bi-funnel"></i>
+            </div>
+            <div>
+                <h5>Filter Orders</h5>
+                <span>Search by order ID, status, payment and date range</span>
+            </div>
+        </div>
+
+        <form method="GET" class="row g-3 align-items-end">
+
+            <div class="col-md-3">
+                <label class="form-label">Search Order ID</label>
+                <input type="text"
+                       name="search"
+                       class="form-control"
+                       placeholder="Example: 12"
+                       value="{{ search|default:'' }}">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Order Status</label>
+                <select name="status" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="PENDING" {% if status == "PENDING" %}selected{% endif %}>Pending</option>
+                    <option value="ACCEPTED" {% if status == "ACCEPTED" %}selected{% endif %}>Accepted</option>
+                    <option value="PREPARING" {% if status == "PREPARING" %}selected{% endif %}>Preparing</option>
+                    <option value="READY" {% if status == "READY" %}selected{% endif %}>Ready</option>
+                    <option value="SERVED" {% if status == "SERVED" %}selected{% endif %}>Served</option>
+                    <option value="CANCELLED" {% if status == "CANCELLED" %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Payment</label>
+                <select name="payment" class="form-select">
+                    <option value="">All Payment</option>
+                    <option value="PAID" {% if payment == "PAID" %}selected{% endif %}>Paid</option>
+                    <option value="UNPAID" {% if payment == "UNPAID" %}selected{% endif %}>Unpaid</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Date</label>
+                <select name="date_filter" class="form-select">
+                    <option value="">All Time</option>
+                    <option value="today" {% if date_filter == "today" %}selected{% endif %}>Today</option>
+                    <option value="yesterday" {% if date_filter == "yesterday" %}selected{% endif %}>Yesterday</option>
+                    <option value="week" {% if date_filter == "week" %}selected{% endif %}>Last 7 Days</option>
+                    <option value="month" {% if date_filter == "month" %}selected{% endif %}>This Month</option>
+                </select>
+            </div>
+
+            <div class="col-md-12">
+                <div class="filter-actions">
+                    <button class="filter-btn" type="submit">
+                        <i class="bi bi-search"></i>
+                        Filter
+                    </button>
+
+                    <a href="{% url 'order_history' %}" class="reset-btn">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                        Reset
+                    </a>
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+
+    <div class="orders-card">
+
+        <div class="section-title">
+            <div class="section-icon">
+                <i class="bi bi-receipt-cutoff"></i>
+            </div>
+            <div>
+                <h5>Orders</h5>
+                <span>Complete list of filtered cafe orders</span>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table orders-table">
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Table</th>
+                        <th>Customer</th>
+                        <th>Status</th>
+                        <th>Payment</th>
+                        <th>Total</th>
+                        <th>Date</th>
+                        <th>Bill</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>#{{ order.id }}</td>
+
+                        <td>
+                            <i class="bi bi-table me-1"></i>
+                            Table {{ order.table.table_number }}
+                        </td>
+
+                        <td>
+                            <div class="customer-name">{{ order.customer_name|default:"Guest" }}</div>
+                            <div class="customer-mobile">{{ order.customer_mobile|default:"" }}</div>
+                        </td>
+
+                        <td>
+                            <span class="status-badge status-{{ order.status|lower }}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="payment-badge payment-{{ order.payment_status|lower }}">
+                                {{ order.payment_status }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="total-amount">₹{{ order.total_amount }}</span>
+                        </td>
+
+                        <td>
+                            <span class="date-text">{{ order.created_at|date:"d M Y, h:i A" }}</span>
+                        </td>
+
+                        <td>
+                            <a href="{% url 'billing_detail' order.id %}" class="bill-btn">
+                                <i class="bi bi-receipt"></i>
+                                View Bill
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-orders">
+                                <div class="empty-icon">
+                                    <i class="bi bi-inbox"></i>
+                                </div>
+                                <h5>No orders found</h5>
+                                <p class="mb-0">Try changing your filters or search value.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

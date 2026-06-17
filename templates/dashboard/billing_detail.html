@@ -1,0 +1,524 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Cafe Receipt{% endblock %}
+{% block page_title %}Cafe Receipt{% endblock %}
+{% block page_subtitle %}Generate, update, collect payment and print customer bill{% endblock %}
+
+{% block content %}
+
+<style>
+    .receipt-page {
+        padding: 24px 0 45px;
+        background: #f3eadf;
+        border-radius: 28px;
+        font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    .bill-control-panel {
+        max-width: 900px;
+        margin: 0 auto 22px;
+        background: #fffdf8;
+        border: 1px solid #dec7af;
+        border-radius: 24px;
+        padding: 20px;
+        box-shadow: 0 14px 38px rgba(67, 35, 20, 0.12);
+    }
+
+    .bill-control-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+    }
+
+    .bill-control-header h5 {
+        font-weight: 900;
+        color: #3b2115;
+        margin: 0;
+    }
+
+    .bill-control-header p {
+        margin: 3px 0 0;
+        color: #8a5a38;
+        font-size: 13px;
+    }
+
+    .action-grid {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .action-grid .btn,
+    .action-grid select {
+        border-radius: 14px;
+        font-weight: 800;
+        min-height: 42px;
+    }
+
+    .payment-form {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .charge-box {
+        background: #f8efe6;
+        border: 1px solid #ead6c4;
+        border-radius: 20px;
+        padding: 18px;
+        margin-top: 15px;
+    }
+
+    .charge-box label {
+        color: #3b2115;
+        font-weight: 800;
+        font-size: 13px;
+    }
+
+    .charge-box .form-control {
+        border-radius: 14px;
+        min-height: 44px;
+    }
+
+    .receipt-card {
+        max-width: 620px;
+        margin: auto;
+        background: #fffdf8;
+        color: #2b1a12;
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: 0 20px 55px rgba(67, 35, 20, 0.22);
+        border: 1px solid #dec7af;
+    }
+
+    .receipt-brand {
+        background: linear-gradient(135deg, #3b2115, #6F4E37);
+        color: #fff8ef;
+        padding: 28px 25px;
+        text-align: center;
+    }
+
+    .receipt-logo {
+        width: 86px;
+        height: 86px;
+        object-fit: cover;
+        border-radius: 20px;
+        margin-bottom: 12px;
+        border: 4px solid rgba(255,255,255,0.25);
+        background: #fff;
+    }
+
+    .brand-icon {
+        width: 74px;
+        height: 74px;
+        margin: 0 auto 12px;
+        border-radius: 50%;
+        background: #c08457;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 34px;
+        color: #fff;
+        border: 4px solid rgba(255,255,255,0.25);
+    }
+
+    .receipt-brand h2 {
+        margin: 0;
+        font-size: 29px;
+        font-weight: 900;
+        letter-spacing: .5px;
+    }
+
+    .receipt-brand p {
+        margin: 6px 0 0;
+        font-size: 13px;
+        opacity: 0.9;
+    }
+
+    .receipt-body {
+        padding: 26px;
+    }
+
+    .receipt-label {
+        text-align: center;
+        font-size: 12px;
+        letter-spacing: 2px;
+        color: #8a5a38;
+        font-weight: 900;
+        margin-bottom: 20px;
+    }
+
+    .receipt-info {
+        background: #f8efe6;
+        border: 1px solid #ead6c4;
+        border-radius: 16px;
+        padding: 16px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        font-size: 13px;
+        line-height: 1.8;
+        margin-bottom: 22px;
+    }
+
+    .receipt-info strong {
+        color: #3b2115;
+    }
+
+    .receipt-info .right {
+        text-align: right;
+    }
+
+    .payment-pill {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        background: #3b2115;
+        color: white;
+        font-size: 11px;
+        font-weight: 900;
+    }
+
+    .receipt-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+        overflow: hidden;
+        border-radius: 14px;
+    }
+
+    .receipt-table thead {
+        background: #8b5a35;
+        color: white;
+    }
+
+    .receipt-table th {
+        padding: 12px 8px;
+        font-size: 12px;
+        letter-spacing: .7px;
+        text-transform: uppercase;
+    }
+
+    .receipt-table td {
+        padding: 13px 8px;
+        border-bottom: 1px solid #ead6c4;
+    }
+
+    .receipt-table tbody tr:nth-child(even) {
+        background: #fff7ee;
+    }
+
+    .summary-box {
+        margin-top: 22px;
+        background: #f8efe6;
+        border-radius: 16px;
+        padding: 16px;
+        border: 1px solid #ead6c4;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 7px 0;
+        font-size: 14px;
+        color: #4a2d1d;
+    }
+
+    .summary-row.final {
+        margin-top: 8px;
+        padding-top: 13px;
+        border-top: 2px dashed #9a6b48;
+        font-size: 23px;
+        font-weight: 900;
+        color: #2b1a12;
+    }
+
+    .receipt-footer {
+        text-align: center;
+        margin-top: 24px;
+        padding-top: 18px;
+        border-top: 1px dashed #b68b6a;
+    }
+
+    .receipt-footer h5 {
+        font-weight: 900;
+        color: #3b2115;
+        margin-bottom: 4px;
+    }
+
+    .receipt-footer p {
+        margin: 0;
+        color: #80604a;
+        font-size: 13px;
+    }
+
+    @media (max-width: 768px) {
+        .bill-control-panel {
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        .action-grid,
+        .payment-form {
+            width: 100%;
+        }
+
+        .action-grid .btn,
+        .payment-form .btn,
+        .payment-form select {
+            width: 100%;
+        }
+
+        .receipt-info {
+            grid-template-columns: 1fr;
+        }
+
+        .receipt-info .right {
+            text-align: left;
+        }
+    }
+
+    @media print {
+        .sidebar,
+        .topbar,
+        .footer,
+        .no-print {
+            display: none !important;
+        }
+
+        body,
+        .receipt-page {
+            background: white !important;
+        }
+
+        .main-content {
+            margin-left: 0 !important;
+            width: 100% !important;
+            padding: 0 !important;
+        }
+
+        .receipt-card {
+            max-width: 100%;
+            box-shadow: none;
+            border: none;
+            border-radius: 0;
+        }
+
+        @page {
+            size: A4;
+            margin: 12mm;
+        }
+    }
+</style>
+
+<div class="receipt-page">
+
+    <div class="bill-control-panel no-print">
+
+        <div class="bill-control-header">
+            <div>
+                <h5>Bill Controls</h5>
+                <p>Generate/update charges, collect payment and print invoice</p>
+            </div>
+
+            <div class="action-grid">
+                <a href="{% url 'counter_orders' %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back
+                </a>
+
+                {% if bill %}
+                    <button onclick="window.print()" class="btn btn-dark">
+                        <i class="bi bi-printer"></i> Print
+                    </button>
+                {% endif %}
+
+                {% if order.payment_status == "UNPAID" and bill %}
+                    <a href="{% url 'razorpay_payment_page' order.id %}" class="btn btn-primary">
+                        <i class="bi bi-credit-card"></i> Pay Online
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if order.payment_status == "UNPAID" or bill %}
+            <div class="charge-box">
+                <form method="POST" action="{% url 'bill_generate' order.id %}">
+                    {% csrf_token %}
+
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label">GST / Tax %</label>
+                            <input type="number" step="0.01" name="tax_percent" class="form-control"
+                                   value="{% if bill %}{{ bill.tax_percent }}{% else %}5{% endif %}">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Service Charge ₹</label>
+                            <input type="number" step="0.01" name="service_charge" class="form-control"
+                                   value="{% if bill %}{{ bill.service_charge }}{% else %}0{% endif %}">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Discount ₹</label>
+                            <input type="number" step="0.01" name="discount_amount" class="form-control"
+                                   value="{% if bill %}{{ bill.discount_amount }}{% else %}0{% endif %}">
+                        </div>
+
+                        <div class="col-md-3">
+                            <button class="btn btn-cafe w-100">
+                                {% if bill %}
+                                    Update Bill
+                                {% else %}
+                                    Generate Bill
+                                {% endif %}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                {% if order.payment_status == "UNPAID" and bill %}
+                    <form method="POST" action="{% url 'bill_mark_paid' order.id %}" class="payment-form mt-3">
+                        {% csrf_token %}
+
+                        <select name="payment_method" class="form-select" style="max-width:160px;">
+                            <option value="CASH">Cash</option>
+                            <option value="UPI">UPI</option>
+                            <option value="CARD">Card</option>
+                        </select>
+
+                        <button class="btn btn-success">
+                            <i class="bi bi-check-circle"></i> Mark Paid
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        {% endif %}
+
+    </div>
+
+    <div class="receipt-card">
+
+        <div class="receipt-brand">
+
+            {% if setting.logo %}
+                <img src="{{ setting.logo.url }}" class="receipt-logo">
+            {% else %}
+                <div class="brand-icon">☕</div>
+            {% endif %}
+
+            <h2>{{ setting.cafe_name|default:"Cafe QR Ordering" }}</h2>
+
+            {% if setting.address %}
+                <p>{{ setting.address }}</p>
+            {% endif %}
+
+            {% if setting.phone %}
+                <p>Phone: {{ setting.phone }}</p>
+            {% endif %}
+
+            {% if setting.gst_number %}
+                <p>GST: {{ setting.gst_number }}</p>
+            {% endif %}
+
+        </div>
+
+        <div class="receipt-body">
+
+            <div class="receipt-label">CUSTOMER RECEIPT</div>
+
+            <div class="receipt-info">
+                <div>
+                    <strong>Order:</strong> #{{ order.id }}<br>
+                    <strong>Table:</strong> {{ order.table.table_number }}<br>
+                    <strong>Customer:</strong> {{ order.customer_name|default:"Guest" }}<br>
+                    {% if order.customer_mobile %}
+                        <strong>Mobile:</strong> {{ order.customer_mobile }}
+                    {% endif %}
+                </div>
+
+                <div class="right">
+                    {% if bill %}
+                        <strong>Bill:</strong> {{ bill.bill_number }}<br>
+                    {% else %}
+                        <strong>Bill:</strong> Not Generated<br>
+                    {% endif %}
+
+                    <strong>Date:</strong> {% now "d M Y" %}<br>
+                    <strong>Time:</strong> {% now "h:i A" %}<br>
+                    <span class="payment-pill">{{ order.payment_status }}</span>
+                </div>
+            </div>
+
+            <table class="receipt-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th class="text-center">Qty</th>
+                        <th class="text-end">Price</th>
+                        <th class="text-end">Amount</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in order.items.all %}
+                    <tr>
+                        <td>{{ item.menu_item.name }}</td>
+                        <td class="text-center">{{ item.quantity }}</td>
+                        <td class="text-end">₹{{ item.price }}</td>
+                        <td class="text-end">₹{{ item.subtotal }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="summary-box">
+                {% if bill %}
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <strong>₹{{ bill.subtotal }}</strong>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>GST / Tax ({{ bill.tax_percent }}%)</span>
+                        <strong>₹{{ bill.tax_amount }}</strong>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Service Charge</span>
+                        <strong>₹{{ bill.service_charge }}</strong>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Discount</span>
+                        <strong>- ₹{{ bill.discount_amount }}</strong>
+                    </div>
+
+                    <div class="summary-row final">
+                        <span>Total</span>
+                        <span>₹{{ bill.grand_total }}</span>
+                    </div>
+                {% else %}
+                    <div class="summary-row final">
+                        <span>Total</span>
+                        <span>₹{{ order.total_amount }}</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="receipt-footer">
+                <h5>Thank You!</h5>
+                <p>{{ setting.invoice_footer|default:"Thank you! Visit again." }}</p>
+                <p>Powered by Technolic</p>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

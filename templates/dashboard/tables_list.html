@@ -1,0 +1,627 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Tables{% endblock %}
+{% block page_title %}Manage Tables{% endblock %}
+{% block page_subtitle %}Manage cafe tables, QR codes, status and customer menu links{% endblock %}
+
+{% block content %}
+
+<style>
+    .tables-page {
+        animation: fadeInUp .45s ease;
+    }
+
+    .tables-hero {
+        background:
+            linear-gradient(135deg, rgba(28,18,13,.92), rgba(75,44,27,.82)),
+            url("https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80");
+        background-size: cover;
+        background-position: center;
+        border-radius: 30px;
+        padding: 30px;
+        color: #fff8ef;
+        box-shadow: 0 22px 55px rgba(44,24,16,.22);
+        margin-bottom: 26px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .tables-hero::after {
+        content: "▦";
+        position: absolute;
+        right: 35px;
+        top: -10px;
+        font-size: 130px;
+        opacity: .13;
+        font-weight: 900;
+    }
+
+    .hero-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.13);
+        border: 1px solid rgba(255,255,255,.18);
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 14px;
+    }
+
+    .tables-hero h2 {
+        font-size: 34px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .tables-hero p {
+        margin: 0;
+        color: #ead6c4;
+        max-width: 700px;
+        font-weight: 500;
+    }
+
+    .tables-toolbar {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 26px;
+        padding: 18px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+        margin-bottom: 22px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .toolbar-title {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+    }
+
+    .toolbar-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 17px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+    }
+
+    .toolbar-title h5 {
+        margin: 0;
+        color: #1c120d;
+        font-weight: 900;
+        font-size: 20px;
+    }
+
+    .toolbar-title span {
+        color: #8a7768;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .add-btn {
+        border: none;
+        border-radius: 16px;
+        padding: 12px 20px;
+        font-weight: 900;
+        color: white;
+        background: linear-gradient(135deg, #4b2c1b, #8b5e3c);
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+        transition: .25s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .add-btn:hover {
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 18px 38px rgba(75,44,27,.28);
+    }
+
+    .tables-card {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 30px;
+        padding: 24px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+        overflow: hidden;
+    }
+
+    .tables-table {
+        margin-bottom: 0;
+        border-collapse: separate;
+        border-spacing: 0 12px;
+    }
+
+    .tables-table thead th {
+        background: #fff3df;
+        color: #4b2c1b;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        border: none;
+        padding: 15px;
+        white-space: nowrap;
+    }
+
+    .tables-table thead th:first-child {
+        border-radius: 16px 0 0 16px;
+    }
+
+    .tables-table thead th:last-child {
+        border-radius: 0 16px 16px 0;
+    }
+
+    .tables-table tbody tr {
+        background: #fffdf8;
+        box-shadow: 0 8px 22px rgba(44,24,16,.06);
+        transition: .25s ease;
+    }
+
+    .tables-table tbody tr:hover {
+        transform: scale(1.01);
+        box-shadow: 0 12px 30px rgba(44,24,16,.11);
+    }
+
+    .tables-table tbody td {
+        padding: 15px;
+        border: none;
+        color: #2b160c;
+        font-weight: 650;
+        vertical-align: middle;
+    }
+
+    .tables-table tbody td:first-child {
+        border-radius: 16px 0 0 16px;
+    }
+
+    .tables-table tbody td:last-child {
+        border-radius: 0 16px 16px 0;
+    }
+
+    .table-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .table-icon-box {
+        width: 56px;
+        height: 56px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        box-shadow: 0 12px 26px rgba(75,44,27,.18);
+        flex-shrink: 0;
+    }
+
+    .table-icon-box small {
+        font-size: 10px;
+        font-weight: 900;
+        opacity: .9;
+    }
+
+    .table-icon-box strong {
+        font-size: 20px;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    .table-name {
+        font-weight: 900;
+        color: #1c120d;
+        margin-bottom: 2px;
+    }
+
+    .table-small {
+        color: #8a7768;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .capacity-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: #fff3df;
+        color: #4b2c1b;
+        border: 1px solid #ead6c4;
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .qr-preview {
+        width: 76px;
+        height: 76px;
+        border-radius: 18px;
+        object-fit: contain;
+        background: white;
+        border: 2px solid #ead6c4;
+        padding: 6px;
+        box-shadow: 0 10px 24px rgba(75,44,27,.12);
+    }
+
+    .no-qr {
+        width: 76px;
+        height: 76px;
+        border-radius: 18px;
+        background: #fff3df;
+        color: #8a7768;
+        border: 1px dashed #d7a86e;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 900;
+        text-align: center;
+    }
+
+    .status-badge,
+    .active-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .status-badge::before,
+    .active-badge::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .status-available {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .status-occupied {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .status-bill_pending {
+        background: #fef3c7;
+        color: #a16207;
+    }
+
+    .status-cleaning {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .active-yes {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .active-no {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .action-group {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        min-width: 260px;
+    }
+
+    .action-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 13px;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-size: 16px;
+        transition: .25s ease;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-3px);
+    }
+
+    .open-btn {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .download-btn {
+        background: #e5e7eb;
+        color: #111827;
+    }
+
+    .edit-btn {
+        background: #ede9fe;
+        color: #6d28d9;
+    }
+
+    .delete-btn {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .print-btn {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .available-btn {
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .cleaning-btn {
+        background: #e0f2fe;
+        color: #0369a1;
+    }
+
+    .empty-state {
+        padding: 60px 20px;
+        text-align: center;
+        color: #8a7768;
+    }
+
+    .empty-icon {
+        width: 90px;
+        height: 90px;
+        margin: 0 auto 16px;
+        border-radius: 28px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 42px;
+        box-shadow: 0 16px 35px rgba(75,44,27,.22);
+    }
+
+    .empty-state h5 {
+        color: #1c120d;
+        font-weight: 900;
+        margin-bottom: 6px;
+    }
+
+    .empty-state p {
+        font-weight: 600;
+        margin-bottom: 18px;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .tables-hero,
+        .tables-card {
+            padding: 22px;
+        }
+
+        .tables-hero h2 {
+            font-size: 26px;
+        }
+
+        .tables-toolbar {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .add-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="tables-page">
+
+    <div class="tables-hero">
+        <div class="hero-label">
+            <i class="bi bi-table"></i>
+            Cafe Table Management
+        </div>
+        <h2>Manage Cafe Tables</h2>
+        <p>
+            Add tables, manage QR codes, open customer menu links, track table status and print QR cards.
+        </p>
+    </div>
+
+    <div class="tables-toolbar">
+        <div class="toolbar-title">
+            <div class="toolbar-icon">
+                <i class="bi bi-grid-3x3-gap"></i>
+            </div>
+            <div>
+                <h5>All Cafe Tables</h5>
+                <span>Manage seating, QR ordering and table workflow</span>
+            </div>
+        </div>
+
+        <a href="{% url 'table_add' %}" class="add-btn">
+            <i class="bi bi-plus-circle"></i>
+            Add Table
+        </a>
+    </div>
+
+    <div class="tables-card">
+
+        <div class="table-responsive">
+            <table class="table tables-table">
+                <thead>
+                    <tr>
+                        <th>Table</th>
+                        <th>Name</th>
+                        <th>Capacity</th>
+                        <th>QR Code</th>
+                        <th>Table Status</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for table in tables %}
+                    <tr>
+                        <td>
+                            <div class="table-cell">
+                                <div class="table-icon-box">
+                                    <small>TABLE</small>
+                                    <strong>{{ table.table_number }}</strong>
+                                </div>
+                                <div>
+                                    <div class="table-name">Table {{ table.table_number }}</div>
+                                    <div class="table-small">QR Ordering Table</div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>{{ table.table_name|default:"-" }}</td>
+
+                        <td>
+                            <span class="capacity-pill">
+                                <i class="bi bi-people"></i>
+                                {{ table.capacity }} Seats
+                            </span>
+                        </td>
+
+                        <td>
+                            {% if table.qr_code %}
+                                <img src="{{ table.qr_code.url }}" class="qr-preview" alt="Table {{ table.table_number }} QR">
+                            {% else %}
+                                <div class="no-qr">No QR</div>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <span class="status-badge status-{{ table.status|lower }}">
+                                {% if table.status == "BILL_PENDING" %}
+                                    Bill Pending
+                                {% else %}
+                                    {{ table.status|title }}
+                                {% endif %}
+                            </span>
+                        </td>
+
+                        <td>
+                            {% if table.is_active %}
+                                <span class="active-badge active-yes">Active</span>
+                            {% else %}
+                                <span class="active-badge active-no">Inactive</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <div class="action-group">
+                                <a href="{% url 'customer_menu' table.id %}"
+                                   target="_blank"
+                                   class="action-btn open-btn"
+                                   title="Open Customer Menu">
+                                    <i class="bi bi-box-arrow-up-right"></i>
+                                </a>
+
+                                {% if table.qr_code %}
+                                <a href="{{ table.qr_code.url }}"
+                                   download
+                                   class="action-btn download-btn"
+                                   title="Download QR">
+                                    <i class="bi bi-download"></i>
+                                </a>
+                                {% endif %}
+
+                                <a href="{% url 'table_edit' table.id %}"
+                                   class="action-btn edit-btn"
+                                   title="Edit Table">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+
+                                <a href="{% url 'table_delete' table.id %}"
+                                   onclick="return confirm('Delete this table?')"
+                                   class="action-btn delete-btn"
+                                   title="Delete Table">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+
+                                <a href="{% url 'table_qr_print' table.id %}"
+                                   target="_blank"
+                                   class="action-btn print-btn"
+                                   title="Print QR">
+                                    <i class="bi bi-printer"></i>
+                                </a>
+
+                                <a href="{% url 'table_mark_available' table.id %}"
+                                   class="action-btn available-btn"
+                                   title="Mark Available">
+                                    <i class="bi bi-check2-circle"></i>
+                                </a>
+
+                                <a href="{% url 'table_mark_cleaning' table.id %}"
+                                   class="action-btn cleaning-btn"
+                                   title="Mark Cleaning">
+                                    <i class="bi bi-brush"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <i class="bi bi-table"></i>
+                                </div>
+                                <h5>No tables found</h5>
+                                <p>Add your first cafe table and generate QR ordering access.</p>
+
+                                <a href="{% url 'table_add' %}" class="add-btn">
+                                    <i class="bi bi-plus-circle"></i>
+                                    Add First Table
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,530 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Menu{% endblock %}
+{% block page_title %}Manage Menu{% endblock %}
+{% block page_subtitle %}Manage cafe food, drinks, prices, availability and preparation time{% endblock %}
+
+{% block content %}
+
+<style>
+    .menu-list-page {
+        animation: fadeInUp .45s ease;
+    }
+
+    .menu-hero {
+        background:
+            linear-gradient(135deg, rgba(28,18,13,.92), rgba(75,44,27,.82)),
+            url("https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=80");
+        background-size: cover;
+        background-position: center;
+        border-radius: 30px;
+        padding: 30px;
+        color: #fff8ef;
+        box-shadow: 0 22px 55px rgba(44,24,16,.22);
+        margin-bottom: 26px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .menu-hero::after {
+        content: "🍽";
+        position: absolute;
+        right: 30px;
+        top: 5px;
+        font-size: 120px;
+        opacity: .12;
+    }
+
+    .hero-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.13);
+        border: 1px solid rgba(255,255,255,.18);
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 14px;
+    }
+
+    .menu-hero h2 {
+        font-size: 34px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .menu-hero p {
+        margin: 0;
+        color: #ead6c4;
+        max-width: 700px;
+        font-weight: 500;
+    }
+
+    .menu-toolbar {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 26px;
+        padding: 18px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+        margin-bottom: 22px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .toolbar-title {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+    }
+
+    .toolbar-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 17px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+    }
+
+    .toolbar-title h5 {
+        margin: 0;
+        color: #1c120d;
+        font-weight: 900;
+        font-size: 20px;
+    }
+
+    .toolbar-title span {
+        color: #8a7768;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .add-btn {
+        border: none;
+        border-radius: 16px;
+        padding: 12px 20px;
+        font-weight: 900;
+        color: white;
+        background: linear-gradient(135deg, #4b2c1b, #8b5e3c);
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+        transition: .25s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .add-btn:hover {
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 18px 38px rgba(75,44,27,.28);
+    }
+
+    .menu-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+    }
+
+    .menu-card {
+        background: rgba(255,255,255,.92);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+        transition: .28s ease;
+        height: 100%;
+        position: relative;
+    }
+
+    .menu-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 28px 65px rgba(44,24,16,.17);
+    }
+
+    .menu-img-wrap {
+        height: 220px;
+        position: relative;
+        overflow: hidden;
+        background:
+            linear-gradient(135deg, rgba(75,44,27,.75), rgba(215,168,110,.65)),
+            url("https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=900&q=80");
+        background-size: cover;
+        background-position: center;
+    }
+
+    .menu-img-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: .35s ease;
+    }
+
+    .menu-card:hover .menu-img-wrap img {
+        transform: scale(1.08);
+    }
+
+    .menu-img-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 58px;
+    }
+
+    .category-badge {
+        position: absolute;
+        left: 16px;
+        bottom: 16px;
+        background: rgba(28,18,13,.92);
+        color: white;
+        border-radius: 999px;
+        padding: 8px 13px;
+        font-size: 12px;
+        font-weight: 900;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        backdrop-filter: blur(10px);
+    }
+
+    .availability-badge {
+        position: absolute;
+        right: 16px;
+        top: 16px;
+        border-radius: 999px;
+        padding: 8px 13px;
+        font-size: 12px;
+        font-weight: 900;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .availability-badge::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .available {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .unavailable {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .menu-body {
+        padding: 22px;
+    }
+
+    .menu-title {
+        color: #1c120d;
+        font-size: 21px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .menu-desc {
+        color: #8a7768;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.6;
+        min-height: 48px;
+        margin-bottom: 16px;
+    }
+
+    .menu-meta {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+
+    .price-pill,
+    .time-pill {
+        border-radius: 999px;
+        padding: 9px 14px;
+        font-size: 13px;
+        font-weight: 900;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .price-pill {
+        background: #1c120d;
+        color: white;
+    }
+
+    .time-pill {
+        background: #fff3df;
+        color: #4b2c1b;
+        border: 1px solid #ead6c4;
+    }
+
+    .menu-actions {
+        padding: 0 22px 22px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 9px;
+    }
+
+    .action-btn {
+        border: none;
+        text-decoration: none;
+        border-radius: 15px;
+        padding: 10px 12px;
+        font-size: 13px;
+        font-weight: 900;
+        text-align: center;
+        transition: .25s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 42px;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-3px);
+    }
+
+    .edit-btn {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .toggle-btn {
+        background: #fef3c7;
+        color: #a16207;
+    }
+
+    .delete-btn {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .empty-state {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 30px;
+        padding: 65px 20px;
+        text-align: center;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+    }
+
+    .empty-icon {
+        width: 90px;
+        height: 90px;
+        margin: 0 auto 16px;
+        border-radius: 28px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 42px;
+        box-shadow: 0 16px 35px rgba(75,44,27,.22);
+    }
+
+    .empty-state h5 {
+        color: #1c120d;
+        font-weight: 900;
+        margin-bottom: 6px;
+    }
+
+    .empty-state p {
+        color: #8a7768;
+        font-weight: 600;
+        margin-bottom: 18px;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 1200px) {
+        .menu-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .menu-hero {
+            padding: 24px;
+        }
+
+        .menu-hero h2 {
+            font-size: 26px;
+        }
+
+        .menu-toolbar {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .add-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .menu-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 430px) {
+        .menu-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="menu-list-page">
+
+    <div class="menu-hero">
+        <div class="hero-label">
+            <i class="bi bi-menu-button-wide-fill"></i>
+            Cafe Menu Management
+        </div>
+        <h2>Manage Menu Items</h2>
+        <p>
+            Add, edit, delete and control availability of cafe drinks, snacks, desserts and food items.
+        </p>
+    </div>
+
+    <div class="menu-toolbar">
+        <div class="toolbar-title">
+            <div class="toolbar-icon">
+                <i class="bi bi-cup-hot-fill"></i>
+            </div>
+            <div>
+                <h5>Menu Items</h5>
+                <span>Manage pricing, preparation time and visibility</span>
+            </div>
+        </div>
+
+        <a href="{% url 'menu_add' %}" class="add-btn">
+            <i class="bi bi-plus-circle"></i>
+            Add Item
+        </a>
+    </div>
+
+    {% if items %}
+    <div class="menu-grid">
+
+        {% for item in items %}
+        <div class="menu-card">
+
+            <div class="menu-img-wrap">
+                {% if item.image %}
+                    <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                {% else %}
+                    <div class="menu-img-placeholder">
+                        <i class="bi bi-cup-hot-fill"></i>
+                    </div>
+                {% endif %}
+
+                <span class="category-badge">
+                    <i class="bi bi-tags"></i>
+                    {{ item.category.name }}
+                </span>
+
+                {% if item.is_available %}
+                    <span class="availability-badge available">Available</span>
+                {% else %}
+                    <span class="availability-badge unavailable">Unavailable</span>
+                {% endif %}
+            </div>
+
+            <div class="menu-body">
+                <h5 class="menu-title">{{ item.name }}</h5>
+
+                <p class="menu-desc">
+                    {{ item.description|default:"No description added"|truncatechars:90 }}
+                </p>
+
+                <div class="menu-meta">
+                    <span class="price-pill">
+                        <i class="bi bi-currency-rupee"></i>
+                        {{ item.price }}
+                    </span>
+
+                    <span class="time-pill">
+                        <i class="bi bi-clock"></i>
+                        {{ item.preparation_time }} min
+                    </span>
+                </div>
+            </div>
+
+            <div class="menu-actions">
+                <a href="{% url 'menu_edit' item.id %}" class="action-btn edit-btn">
+                    <i class="bi bi-pencil-square"></i>
+                    Edit
+                </a>
+
+                <a href="{% url 'menu_toggle' item.id %}" class="action-btn toggle-btn">
+                    {% if item.is_available %}
+                        <i class="bi bi-eye-slash"></i>
+                        Hide
+                    {% else %}
+                        <i class="bi bi-eye"></i>
+                        Show
+                    {% endif %}
+                </a>
+
+                <a href="{% url 'menu_delete' item.id %}"
+                   onclick="return confirm('Delete this item?')"
+                   class="action-btn delete-btn">
+                    <i class="bi bi-trash"></i>
+                    Delete
+                </a>
+            </div>
+
+        </div>
+        {% endfor %}
+
+    </div>
+    {% else %}
+
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="bi bi-cup-hot-fill"></i>
+        </div>
+        <h5>No menu items found</h5>
+        <p>Start by adding your first cafe menu item.</p>
+
+        <a href="{% url 'menu_add' %}" class="add-btn">
+            <i class="bi bi-plus-circle"></i>
+            Add First Item
+        </a>
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

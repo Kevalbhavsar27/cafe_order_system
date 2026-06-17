@@ -1,0 +1,509 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Categories{% endblock %}
+{% block page_title %}Manage Categories{% endblock %}
+{% block page_subtitle %}Organize cafe menu categories, images, status and item counts{% endblock %}
+
+{% block content %}
+
+<style>
+    .category-list-page {
+        animation: fadeInUp .45s ease;
+    }
+
+    .category-hero {
+        background:
+            linear-gradient(135deg, rgba(28,18,13,.92), rgba(75,44,27,.82)),
+            url("https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=80");
+        background-size: cover;
+        background-position: center;
+        border-radius: 30px;
+        padding: 30px;
+        color: #fff8ef;
+        box-shadow: 0 22px 55px rgba(44,24,16,.22);
+        margin-bottom: 26px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .category-hero::after {
+        content: "☕";
+        position: absolute;
+        right: 30px;
+        top: 5px;
+        font-size: 120px;
+        opacity: .12;
+    }
+
+    .hero-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.13);
+        border: 1px solid rgba(255,255,255,.18);
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 14px;
+    }
+
+    .category-hero h2 {
+        font-size: 34px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .category-hero p {
+        margin: 0;
+        color: #ead6c4;
+        max-width: 680px;
+        font-weight: 500;
+    }
+
+    .category-toolbar {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 26px;
+        padding: 18px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+        margin-bottom: 22px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .toolbar-title {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+    }
+
+    .toolbar-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 17px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+    }
+
+    .toolbar-title h5 {
+        margin: 0;
+        color: #1c120d;
+        font-weight: 900;
+        font-size: 20px;
+    }
+
+    .toolbar-title span {
+        color: #8a7768;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .add-btn {
+        border: none;
+        border-radius: 16px;
+        padding: 12px 20px;
+        font-weight: 900;
+        color: white;
+        background: linear-gradient(135deg, #4b2c1b, #8b5e3c);
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+        transition: .25s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .add-btn:hover {
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 18px 38px rgba(75,44,27,.28);
+    }
+
+    .category-card {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 30px;
+        padding: 24px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+        overflow: hidden;
+    }
+
+    .category-table {
+        margin-bottom: 0;
+        border-collapse: separate;
+        border-spacing: 0 12px;
+    }
+
+    .category-table thead th {
+        background: #fff3df;
+        color: #4b2c1b;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        border: none;
+        padding: 15px;
+        white-space: nowrap;
+    }
+
+    .category-table thead th:first-child {
+        border-radius: 16px 0 0 16px;
+    }
+
+    .category-table thead th:last-child {
+        border-radius: 0 16px 16px 0;
+    }
+
+    .category-table tbody tr {
+        background: #fffdf8;
+        box-shadow: 0 8px 22px rgba(44,24,16,.06);
+        transition: .25s ease;
+    }
+
+    .category-table tbody tr:hover {
+        transform: scale(1.01);
+        box-shadow: 0 12px 30px rgba(44,24,16,.11);
+    }
+
+    .category-table tbody td {
+        padding: 15px;
+        border: none;
+        color: #2b160c;
+        font-weight: 650;
+        vertical-align: middle;
+    }
+
+    .category-table tbody td:first-child {
+        border-radius: 16px 0 0 16px;
+    }
+
+    .category-table tbody td:last-child {
+        border-radius: 0 16px 16px 0;
+    }
+
+    .category-img {
+        width: 74px;
+        height: 74px;
+        border-radius: 18px;
+        object-fit: cover;
+        box-shadow: 0 10px 24px rgba(75,44,27,.16);
+        border: 2px solid #fff3df;
+    }
+
+    .category-placeholder {
+        width: 74px;
+        height: 74px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #fff3df, #ead6c4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #4b2c1b;
+        font-size: 30px;
+        box-shadow: 0 10px 24px rgba(75,44,27,.10);
+    }
+
+    .category-name {
+        font-size: 15px;
+        font-weight: 900;
+        color: #1c120d;
+    }
+
+    .category-desc {
+        color: #8a7768;
+        font-size: 13px;
+        font-weight: 600;
+        max-width: 330px;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .status-badge::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .status-active {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .status-inactive {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .items-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: #fff3df;
+        color: #4b2c1b;
+        border: 1px solid #ead6c4;
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .action-group {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 13px;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-size: 16px;
+        transition: .25s ease;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-3px);
+    }
+
+    .toggle-btn {
+        background: #fef3c7;
+        color: #a16207;
+    }
+
+    .edit-btn {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .delete-btn {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .empty-state {
+        padding: 60px 20px;
+        text-align: center;
+        color: #8a7768;
+    }
+
+    .empty-icon {
+        width: 90px;
+        height: 90px;
+        margin: 0 auto 16px;
+        border-radius: 28px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 42px;
+        box-shadow: 0 16px 35px rgba(75,44,27,.22);
+    }
+
+    .empty-state h5 {
+        color: #1c120d;
+        font-weight: 900;
+        margin-bottom: 6px;
+    }
+
+    .empty-state p {
+        font-weight: 600;
+        margin-bottom: 18px;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .category-hero,
+        .category-card {
+            padding: 22px;
+        }
+
+        .category-hero h2 {
+            font-size: 26px;
+        }
+
+        .category-toolbar {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .add-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .category-desc {
+            max-width: 220px;
+        }
+    }
+</style>
+
+<div class="category-list-page">
+
+    <div class="category-hero">
+        <div class="hero-label">
+            <i class="bi bi-tags-fill"></i>
+            Cafe Menu Management
+        </div>
+        <h2>Manage Menu Categories</h2>
+        <p>
+            Create, edit, activate and organize categories for your cafe menu items.
+        </p>
+    </div>
+
+    <div class="category-toolbar">
+        <div class="toolbar-title">
+            <div class="toolbar-icon">
+                <i class="bi bi-grid-3x3-gap-fill"></i>
+            </div>
+            <div>
+                <h5>Menu Categories</h5>
+                <span>Total category records and menu item grouping</span>
+            </div>
+        </div>
+
+        <a href="{% url 'category_add' %}" class="add-btn">
+            <i class="bi bi-plus-circle"></i>
+            Add Category
+        </a>
+    </div>
+
+    <div class="category-card">
+
+        <div class="table-responsive">
+            <table class="table category-table">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Items</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for category in categories %}
+                    <tr>
+                        <td>
+                            {% if category.image %}
+                                <img src="{{ category.image.url }}" class="category-img" alt="{{ category.name }}">
+                            {% else %}
+                                <div class="category-placeholder">
+                                    <i class="bi bi-cup-hot-fill"></i>
+                                </div>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <div class="category-name">{{ category.name }}</div>
+                        </td>
+
+                        <td>
+                            <div class="category-desc">
+                                {{ category.description|default:"No description added"|truncatechars:70 }}
+                            </div>
+                        </td>
+
+                        <td>
+                            {% if category.is_active %}
+                                <span class="status-badge status-active">Active</span>
+                            {% else %}
+                                <span class="status-badge status-inactive">Inactive</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <span class="items-pill">
+                                <i class="bi bi-cup-straw"></i>
+                                {{ category.menu_items.count }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="action-group">
+                                <a href="{% url 'category_toggle' category.id %}"
+                                   class="action-btn toggle-btn"
+                                   title="{% if category.is_active %}Deactivate{% else %}Activate{% endif %}">
+                                    {% if category.is_active %}
+                                        <i class="bi bi-eye-slash"></i>
+                                    {% else %}
+                                        <i class="bi bi-eye"></i>
+                                    {% endif %}
+                                </a>
+
+                                <a href="{% url 'category_edit' category.id %}"
+                                   class="action-btn edit-btn"
+                                   title="Edit">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+
+                                <a href="{% url 'category_delete' category.id %}"
+                                   onclick="return confirm('Delete this category?')"
+                                   class="action-btn delete-btn"
+                                   title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <i class="bi bi-tags"></i>
+                                </div>
+                                <h5>No categories found</h5>
+                                <p>Start by adding your first cafe menu category.</p>
+                                <a href="{% url 'category_add' %}" class="add-btn">
+                                    <i class="bi bi-plus-circle"></i>
+                                    Add First Category
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

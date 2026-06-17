@@ -1,0 +1,560 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Edit Category{% endblock %}
+{% block page_title %}Edit Category{% endblock %}
+{% block page_subtitle %}Update category details, image and active status{% endblock %}
+
+{% block content %}
+
+<style>
+    .category-page {
+        animation: fadeInUp .45s ease;
+    }
+
+    .category-hero {
+        background:
+            linear-gradient(135deg, rgba(28,18,13,.92), rgba(75,44,27,.82)),
+            url("https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=1200&q=80");
+        background-size: cover;
+        background-position: center;
+        border-radius: 30px;
+        padding: 30px;
+        color: #fff8ef;
+        box-shadow: 0 22px 55px rgba(44,24,16,.22);
+        margin-bottom: 26px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .category-hero::after {
+        content: "✎";
+        position: absolute;
+        right: 30px;
+        top: 5px;
+        font-size: 120px;
+        opacity: .12;
+    }
+
+    .hero-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.13);
+        border: 1px solid rgba(255,255,255,.18);
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 14px;
+    }
+
+    .category-hero h2 {
+        font-size: 34px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .category-hero p {
+        margin: 0;
+        color: #ead6c4;
+        max-width: 650px;
+        font-weight: 500;
+    }
+
+    .category-layout {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 24px;
+        align-items: start;
+    }
+
+    .category-preview {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 28px;
+        padding: 24px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+        position: sticky;
+        top: 120px;
+        overflow: hidden;
+    }
+
+    .preview-image {
+        width: 100%;
+        height: 190px;
+        border-radius: 24px;
+        background:
+            linear-gradient(135deg, rgba(75,44,27,.85), rgba(215,168,110,.75)),
+            url("https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=900&q=80");
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 52px;
+        box-shadow: 0 16px 35px rgba(75,44,27,.22);
+        overflow: hidden;
+        margin-bottom: 18px;
+    }
+
+    .preview-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .category-preview h4 {
+        color: #1c120d;
+        font-size: 22px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .category-preview p {
+        color: #8a7768;
+        font-size: 14px;
+        line-height: 1.7;
+        margin-bottom: 0;
+    }
+
+    .preview-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        margin-bottom: 14px;
+        background: #fff3df;
+        color: #4b2c1b;
+        border: 1px solid #ead6c4;
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .status-preview {
+        margin-top: 16px;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .status-preview.active {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .status-preview.inactive {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .category-card {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 30px;
+        padding: 28px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 22px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #ead6c4;
+    }
+
+    .section-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 17px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+    }
+
+    .section-title h5 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 900;
+        color: #1c120d;
+    }
+
+    .section-title span {
+        color: #8a7768;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .form-label {
+        font-weight: 800;
+        color: #4b2c1b;
+        margin-bottom: 8px;
+    }
+
+    .category-card .form-control {
+        border-radius: 16px;
+        border: 1px solid #ead6c4;
+        background: #fffdf8;
+        padding: 13px 15px;
+        font-weight: 600;
+        color: #2b160c;
+    }
+
+    .category-card textarea.form-control {
+        resize: none;
+    }
+
+    .category-card .form-control:focus {
+        border-color: #d7a86e;
+        box-shadow: 0 0 0 .2rem rgba(215,168,110,.25);
+    }
+
+    .input-icon-box {
+        position: relative;
+    }
+
+    .input-icon-box i {
+        position: absolute;
+        left: 15px;
+        top: 44px;
+        color: #b77945;
+        font-size: 18px;
+    }
+
+    .input-icon-box .form-control {
+        padding-left: 44px;
+    }
+
+    .image-upload-box {
+        border: 2px dashed #d7a86e;
+        background: #fff8ef;
+        border-radius: 22px;
+        padding: 22px;
+        transition: .25s ease;
+    }
+
+    .image-upload-box:hover {
+        background: #fff3df;
+        border-color: #b77945;
+    }
+
+    .image-upload-box small {
+        color: #8a7768;
+        font-weight: 600;
+    }
+
+    .active-box {
+        background: #fff8ef;
+        border: 1px solid #ead6c4;
+        border-radius: 22px;
+        padding: 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .active-box h6 {
+        font-weight: 900;
+        color: #1c120d;
+        margin-bottom: 4px;
+    }
+
+    .active-box p {
+        margin: 0;
+        color: #8a7768;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .form-switch .form-check-input {
+        width: 3.2rem;
+        height: 1.6rem;
+        cursor: pointer;
+    }
+
+    .form-switch .form-check-input:checked {
+        background-color: #4b2c1b;
+        border-color: #4b2c1b;
+    }
+
+    .form-actions {
+        margin-top: 24px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        border-top: 1px solid #ead6c4;
+        padding-top: 22px;
+    }
+
+    .save-btn {
+        border: none;
+        border-radius: 16px;
+        padding: 12px 22px;
+        font-weight: 900;
+        color: white;
+        background: linear-gradient(135deg, #4b2c1b, #8b5e3c);
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+        transition: .25s ease;
+    }
+
+    .save-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 18px 38px rgba(75,44,27,.28);
+    }
+
+    .back-btn {
+        border-radius: 16px;
+        padding: 12px 18px;
+        font-weight: 800;
+        border: 1px solid #ead6c4;
+        background: #fff8ef;
+        color: #4b2c1b;
+        text-decoration: none;
+    }
+
+    .back-btn:hover {
+        background: #fff3df;
+        color: #4b2c1b;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 992px) {
+        .category-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .category-preview {
+            position: relative;
+            top: 0;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .category-hero,
+        .category-card {
+            padding: 22px;
+        }
+
+        .category-hero h2 {
+            font-size: 26px;
+        }
+
+        .active-box {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .form-actions {
+            justify-content: stretch;
+        }
+
+        .form-actions button,
+        .form-actions a {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="category-page">
+
+    <div class="category-hero">
+        <div class="hero-label">
+            <i class="bi bi-pencil-square"></i>
+            Edit Menu Category
+        </div>
+        <h2>Update {{ category.name }}</h2>
+        <p>
+            Modify category name, description, display image and active visibility status.
+        </p>
+    </div>
+
+    <div class="category-layout">
+
+        <div class="category-preview">
+            <div class="preview-image" id="categoryImagePreview">
+                {% if category.image %}
+                    <img src="{{ category.image.url }}" alt="{{ category.name }}">
+                {% else %}
+                    <i class="bi bi-cup-hot-fill"></i>
+                {% endif %}
+            </div>
+
+            <div class="preview-badge">
+                <i class="bi bi-eye"></i>
+                Live Preview
+            </div>
+
+            <h4 id="previewName">{{ category.name }}</h4>
+            <p id="previewDescription">
+                {{ category.description|default:"No description added yet." }}
+            </p>
+
+            <div id="statusPreview" class="status-preview {% if category.is_active %}active{% else %}inactive{% endif %}">
+                <i class="bi {% if category.is_active %}bi-check-circle{% else %}bi-x-circle{% endif %}"></i>
+                <span>{% if category.is_active %}Active Category{% else %}Inactive Category{% endif %}</span>
+            </div>
+        </div>
+
+        <div class="category-card">
+
+            <div class="section-title">
+                <div class="section-icon">
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+                <div>
+                    <h5>Category Information</h5>
+                    <span>Update details below and save your changes.</span>
+                </div>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="row g-4">
+
+                    <div class="col-md-12 input-icon-box">
+                        <label class="form-label">Category Name</label>
+                        <i class="bi bi-tag"></i>
+                        <input type="text"
+                               name="name"
+                               id="categoryNameInput"
+                               class="form-control"
+                               value="{{ category.name }}"
+                               placeholder="Example: Hot Coffee"
+                               required>
+                    </div>
+
+                    <div class="col-md-12 input-icon-box">
+                        <label class="form-label">Description</label>
+                        <i class="bi bi-card-text"></i>
+                        <textarea name="description"
+                                  id="categoryDescriptionInput"
+                                  class="form-control"
+                                  rows="4"
+                                  placeholder="Example: Freshly brewed hot coffee items for customers.">{{ category.description }}</textarea>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Change Image</label>
+                        <div class="image-upload-box">
+                            <input type="file"
+                                   name="image"
+                                   id="categoryImageInput"
+                                   class="form-control"
+                                   accept="image/*">
+                            <small class="d-block mt-2">
+                                Upload a new JPG, PNG or WEBP image only if you want to replace the current image.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="active-box">
+                            <div>
+                                <h6>Category Status</h6>
+                                <p>Turn this off if you want to hide this category from menu listing.</p>
+                            </div>
+
+                            <div class="form-check form-switch m-0">
+                                <input type="checkbox"
+                                       name="is_active"
+                                       id="activeSwitch"
+                                       class="form-check-input"
+                                       {% if category.is_active %}checked{% endif %}>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+                    <a href="{% url 'category_list' %}" class="back-btn">
+                        <i class="bi bi-arrow-left"></i>
+                        Back
+                    </a>
+
+                    <button class="save-btn" type="submit">
+                        <i class="bi bi-check-circle"></i>
+                        Update Category
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const nameInput = document.getElementById("categoryNameInput");
+        const descriptionInput = document.getElementById("categoryDescriptionInput");
+        const imageInput = document.getElementById("categoryImageInput");
+        const activeSwitch = document.getElementById("activeSwitch");
+
+        const previewName = document.getElementById("previewName");
+        const previewDescription = document.getElementById("previewDescription");
+        const imagePreview = document.getElementById("categoryImagePreview");
+        const statusPreview = document.getElementById("statusPreview");
+
+        nameInput.addEventListener("input", function () {
+            previewName.innerText = this.value || "Category Name";
+        });
+
+        descriptionInput.addEventListener("input", function () {
+            previewDescription.innerText = this.value || "No description added yet.";
+        });
+
+        imageInput.addEventListener("change", function () {
+            const file = this.files[0];
+
+            if (!file) return;
+
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                imagePreview.innerHTML = `<img src="${e.target.result}" alt="Category Image">`;
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+        activeSwitch.addEventListener("change", function () {
+            if (this.checked) {
+                statusPreview.className = "status-preview active";
+                statusPreview.innerHTML = `<i class="bi bi-check-circle"></i><span>Active Category</span>`;
+            } else {
+                statusPreview.className = "status-preview inactive";
+                statusPreview.innerHTML = `<i class="bi bi-x-circle"></i><span>Inactive Category</span>`;
+            }
+        });
+    });
+</script>
+
+{% endblock %}

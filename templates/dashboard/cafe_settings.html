@@ -1,0 +1,488 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Cafe Settings{% endblock %}
+{% block page_title %}Cafe Settings{% endblock %}
+{% block page_subtitle %}Manage cafe profile, invoice and branding{% endblock %}
+
+{% block content %}
+
+<style>
+    .settings-page {
+        animation: fadeInUp .45s ease;
+    }
+
+    .settings-hero {
+        background:
+            linear-gradient(135deg, rgba(28,18,13,.92), rgba(75,44,27,.82)),
+            url("https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=80");
+        background-size: cover;
+        background-position: center;
+        border-radius: 30px;
+        padding: 30px;
+        color: #fff8ef;
+        box-shadow: 0 22px 55px rgba(44,24,16,.22);
+        margin-bottom: 26px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .settings-hero::after {
+        content: "⚙";
+        position: absolute;
+        right: 30px;
+        top: 5px;
+        font-size: 120px;
+        opacity: .12;
+    }
+
+    .hero-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.13);
+        border: 1px solid rgba(255,255,255,.18);
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 14px;
+    }
+
+    .settings-hero h2 {
+        font-size: 34px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .settings-hero p {
+        margin: 0;
+        color: #ead6c4;
+        max-width: 650px;
+        font-weight: 500;
+    }
+
+    .settings-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 24px;
+        align-items: start;
+    }
+
+    .settings-preview {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 28px;
+        padding: 24px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+        text-align: center;
+        position: sticky;
+        top: 120px;
+    }
+
+    .logo-preview {
+        width: 130px;
+        height: 130px;
+        border-radius: 32px;
+        margin: 0 auto 18px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 52px;
+        box-shadow: 0 16px 35px rgba(75,44,27,.25);
+        overflow: hidden;
+    }
+
+    .logo-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .settings-preview h4 {
+        font-weight: 900;
+        color: #1c120d;
+        margin-bottom: 6px;
+    }
+
+    .settings-preview p {
+        color: #8a7768;
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+
+    .preview-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 14px;
+        background: #fff3df;
+        color: #4b2c1b;
+        border: 1px solid #ead6c4;
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .settings-card {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 30px;
+        padding: 28px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 22px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #ead6c4;
+    }
+
+    .section-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 17px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+    }
+
+    .section-title h5 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 900;
+        color: #1c120d;
+    }
+
+    .section-title span {
+        color: #8a7768;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .form-label {
+        font-weight: 800;
+        color: #4b2c1b;
+        margin-bottom: 8px;
+    }
+
+    .settings-card .form-control {
+        border-radius: 16px;
+        border: 1px solid #ead6c4;
+        background: #fffdf8;
+        padding: 13px 15px;
+        font-weight: 600;
+        color: #2b160c;
+    }
+
+    .settings-card textarea.form-control {
+        resize: none;
+    }
+
+    .settings-card .form-control:focus {
+        border-color: #d7a86e;
+        box-shadow: 0 0 0 .2rem rgba(215,168,110,.25);
+    }
+
+    .input-icon-box {
+        position: relative;
+    }
+
+    .input-icon-box i {
+        position: absolute;
+        left: 15px;
+        top: 44px;
+        color: #b77945;
+        font-size: 18px;
+    }
+
+    .input-icon-box .form-control {
+        padding-left: 44px;
+    }
+
+    .logo-upload-box {
+        border: 2px dashed #d7a86e;
+        background: #fff8ef;
+        border-radius: 22px;
+        padding: 22px;
+        transition: .25s ease;
+    }
+
+    .logo-upload-box:hover {
+        background: #fff3df;
+        border-color: #b77945;
+    }
+
+    .logo-upload-box small {
+        color: #8a7768;
+        font-weight: 600;
+    }
+
+    .settings-actions {
+        margin-top: 24px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        border-top: 1px solid #ead6c4;
+        padding-top: 22px;
+    }
+
+    .save-btn {
+        border: none;
+        border-radius: 16px;
+        padding: 12px 22px;
+        font-weight: 900;
+        color: white;
+        background: linear-gradient(135deg, #4b2c1b, #8b5e3c);
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+        transition: .25s ease;
+    }
+
+    .save-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 18px 38px rgba(75,44,27,.28);
+    }
+
+    .reset-btn {
+        border-radius: 16px;
+        padding: 12px 18px;
+        font-weight: 800;
+        border: 1px solid #ead6c4;
+        background: #fff8ef;
+        color: #4b2c1b;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 992px) {
+        .settings-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .settings-preview {
+            position: relative;
+            top: 0;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .settings-hero,
+        .settings-card {
+            padding: 22px;
+        }
+
+        .settings-hero h2 {
+            font-size: 26px;
+        }
+
+        .settings-actions {
+            justify-content: stretch;
+        }
+
+        .settings-actions button,
+        .settings-actions a {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="settings-page">
+
+    <div class="settings-hero">
+        <div class="hero-label">
+            <i class="bi bi-gear-fill"></i>
+            Cafe Configuration
+        </div>
+        <h2>Customize Your Cafe Identity</h2>
+        <p>
+            Update your cafe name, invoice details, contact information, GST number and logo branding.
+        </p>
+    </div>
+
+    <div class="settings-layout">
+
+        <div class="settings-preview">
+            <div class="logo-preview" id="logoPreview">
+                {% if setting.logo %}
+                    <img src="{{ setting.logo.url }}" alt="Cafe Logo">
+                {% else %}
+                    <i class="bi bi-cup-hot-fill"></i>
+                {% endif %}
+            </div>
+
+            <h4 id="previewCafeName">{{ setting.cafe_name|default:"Cafe QR Ordering" }}</h4>
+            <p id="previewAddress">{{ setting.address|default:"Surat, Gujarat" }}</p>
+            <p id="previewPhone">{{ setting.phone|default:"No phone added" }}</p>
+
+            <div class="preview-badge">
+                <i class="bi bi-receipt"></i>
+                Invoice Branding
+            </div>
+        </div>
+
+        <div class="settings-card">
+
+            <div class="section-title">
+                <div class="section-icon">
+                    <i class="bi bi-shop"></i>
+                </div>
+                <div>
+                    <h5>Cafe Profile</h5>
+                    <span>These details will appear on invoices and receipts.</span>
+                </div>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="row g-4">
+
+                    <div class="col-md-6 input-icon-box">
+                        <label class="form-label">Cafe Name</label>
+                        <i class="bi bi-shop-window"></i>
+                        <input type="text"
+                               name="cafe_name"
+                               id="cafeNameInput"
+                               class="form-control"
+                               value="{{ setting.cafe_name }}"
+                               placeholder="Enter cafe name"
+                               required>
+                    </div>
+
+                    <div class="col-md-6 input-icon-box">
+                        <label class="form-label">Phone</label>
+                        <i class="bi bi-telephone"></i>
+                        <input type="text"
+                               name="phone"
+                               id="phoneInput"
+                               class="form-control"
+                               value="{{ setting.phone }}"
+                               placeholder="Enter phone number">
+                    </div>
+
+                    <div class="col-md-12 input-icon-box">
+                        <label class="form-label">Address</label>
+                        <i class="bi bi-geo-alt"></i>
+                        <textarea name="address"
+                                  id="addressInput"
+                                  rows="3"
+                                  class="form-control"
+                                  placeholder="Enter cafe address">{{ setting.address }}</textarea>
+                    </div>
+
+                    <div class="col-md-6 input-icon-box">
+                        <label class="form-label">GST Number</label>
+                        <i class="bi bi-file-earmark-text"></i>
+                        <input type="text"
+                               name="gst_number"
+                               class="form-control"
+                               value="{{ setting.gst_number }}"
+                               placeholder="Enter GST number">
+                    </div>
+
+                    <div class="col-md-6 input-icon-box">
+                        <label class="form-label">Invoice Footer</label>
+                        <i class="bi bi-chat-heart"></i>
+                        <input type="text"
+                               name="invoice_footer"
+                               class="form-control"
+                               value="{{ setting.invoice_footer }}"
+                               placeholder="Thank you! Visit again.">
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Cafe Logo</label>
+                        <div class="logo-upload-box">
+                            <input type="file"
+                                   name="logo"
+                                   id="logoInput"
+                                   class="form-control"
+                                   accept="image/*">
+                            <small class="d-block mt-2">
+                                Upload PNG, JPG or WEBP logo for invoices and cafe branding.
+                            </small>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="settings-actions">
+                    <button type="reset" class="reset-btn">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                        Reset
+                    </button>
+
+                    <button type="submit" class="save-btn">
+                        <i class="bi bi-check-circle"></i>
+                        Save Settings
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const cafeNameInput = document.getElementById("cafeNameInput");
+        const addressInput = document.getElementById("addressInput");
+        const phoneInput = document.getElementById("phoneInput");
+        const logoInput = document.getElementById("logoInput");
+
+        const previewCafeName = document.getElementById("previewCafeName");
+        const previewAddress = document.getElementById("previewAddress");
+        const previewPhone = document.getElementById("previewPhone");
+        const logoPreview = document.getElementById("logoPreview");
+
+        cafeNameInput.addEventListener("input", function () {
+            previewCafeName.innerText = this.value || "Cafe QR Ordering";
+        });
+
+        addressInput.addEventListener("input", function () {
+            previewAddress.innerText = this.value || "Surat, Gujarat";
+        });
+
+        phoneInput.addEventListener("input", function () {
+            previewPhone.innerText = this.value || "No phone added";
+        });
+
+        logoInput.addEventListener("change", function () {
+            const file = this.files[0];
+
+            if (!file) return;
+
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                logoPreview.innerHTML = `<img src="${e.target.result}" alt="Cafe Logo">`;
+            };
+
+            reader.readAsDataURL(file);
+        });
+    });
+</script>
+
+{% endblock %}

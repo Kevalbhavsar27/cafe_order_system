@@ -1,0 +1,768 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Counter Dashboard{% endblock %}
+{% block page_title %}Counter Dashboard{% endblock %}
+{% block page_subtitle %}Manage orders, serving and payments{% endblock %}
+
+{% block content %}
+
+<style>
+    .counter-dashboard {
+        animation: fadeInUp .45s ease;
+    }
+
+    .counter-hero {
+        background:
+            linear-gradient(135deg, rgba(28,18,13,.92), rgba(75,44,27,.82)),
+            url("https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80");
+        background-size: cover;
+        background-position: center;
+        border-radius: 30px;
+        padding: 30px;
+        color: #fff8ef;
+        box-shadow: 0 22px 55px rgba(44,24,16,.22);
+        margin-bottom: 26px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .counter-hero::after {
+        content: "💳";
+        position: absolute;
+        right: 30px;
+        top: 5px;
+        font-size: 110px;
+        opacity: .13;
+    }
+
+    .hero-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.13);
+        border: 1px solid rgba(255,255,255,.18);
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 14px;
+    }
+
+    .counter-hero h2 {
+        font-size: 34px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .counter-hero p {
+        margin: 0;
+        color: #ead6c4;
+        max-width: 680px;
+        font-weight: 500;
+    }
+
+    .counter-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 18px;
+        margin-bottom: 26px;
+    }
+
+    .counter-stat {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 26px;
+        padding: 20px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+        position: relative;
+        overflow: hidden;
+        transition: .28s ease;
+        min-height: 145px;
+    }
+
+    .counter-stat:hover {
+        transform: translateY(-7px);
+        box-shadow: 0 28px 65px rgba(44,24,16,.16);
+    }
+
+    .counter-stat::after {
+        content: "";
+        width: 95px;
+        height: 95px;
+        border-radius: 50%;
+        position: absolute;
+        right: -34px;
+        top: -34px;
+        background: rgba(215,168,110,.18);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 17px;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 21px;
+        box-shadow: 0 12px 28px rgba(75,44,27,.18);
+        margin-bottom: 14px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .icon-pending { background: linear-gradient(135deg, #c2410c, #f59e0b); }
+    .icon-ready { background: linear-gradient(135deg, #15803d, #22c55e); }
+    .icon-unpaid { background: linear-gradient(135deg, #b91c1c, #ef4444); }
+    .icon-paid { background: linear-gradient(135deg, #166534, #16a34a); }
+    .icon-table { background: linear-gradient(135deg, #4b2c1b, #d7a86e); }
+    .icon-sales { background: linear-gradient(135deg, #1c120d, #8b5e3c); }
+
+    .counter-stat p {
+        color: #8a7768;
+        font-weight: 800;
+        font-size: 13px;
+        margin-bottom: 6px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .counter-stat h3 {
+        color: #1c120d;
+        font-weight: 900;
+        font-size: 28px;
+        margin: 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .orders-toolbar {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 26px;
+        padding: 18px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+        margin-bottom: 22px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .toolbar-title {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+    }
+
+    .toolbar-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 17px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+    }
+
+    .toolbar-title h5 {
+        margin: 0;
+        color: #1c120d;
+        font-weight: 900;
+        font-size: 20px;
+    }
+
+    .toolbar-title span {
+        color: #8a7768;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .refresh-btn {
+        border: none;
+        border-radius: 16px;
+        padding: 12px 20px;
+        font-weight: 900;
+        color: white;
+        background: linear-gradient(135deg, #4b2c1b, #8b5e3c);
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+        transition: .25s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .refresh-btn:hover {
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 18px 38px rgba(75,44,27,.28);
+    }
+
+    .orders-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 22px;
+    }
+
+    .pos-card {
+        background: rgba(255,255,255,.92);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 28px;
+        padding: 22px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+        position: relative;
+        overflow: hidden;
+        transition: .28s ease;
+        height: 100%;
+    }
+
+    .pos-card:hover {
+        transform: translateY(-7px);
+        box-shadow: 0 28px 65px rgba(44,24,16,.17);
+    }
+
+    .pos-card::after {
+        content: "🧾";
+        position: absolute;
+        right: -8px;
+        top: -25px;
+        font-size: 95px;
+        opacity: .06;
+    }
+
+    .order-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 16px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .order-head h5 {
+        margin: 0 0 8px;
+        font-size: 20px;
+        color: #1c120d;
+        font-weight: 900;
+    }
+
+    .table-pill {
+        background: #fff3df;
+        color: #4b2c1b;
+        border: 1px solid #ead6c4;
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-weight: 900;
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .status-badge-lg,
+    .payment-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .status-badge-lg::before,
+    .payment-badge::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .status-pending { background: #ffedd5; color: #c2410c; }
+    .status-accepted { background: #dbeafe; color: #1d4ed8; }
+    .status-ready { background: #dcfce7; color: #15803d; }
+    .status-served { background: #e5e7eb; color: #111827; }
+    .status-cancelled { background: #fee2e2; color: #b91c1c; }
+
+    .payment-paid { background: #dcfce7; color: #15803d; }
+    .payment-unpaid { background: #fee2e2; color: #b91c1c; }
+
+    .customer-box {
+        background: #fff8ef;
+        border: 1px solid #ead6c4;
+        border-radius: 20px;
+        padding: 14px;
+        display: grid;
+        gap: 8px;
+        margin-bottom: 14px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .customer-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 14px;
+        color: #2b160c;
+        font-weight: 700;
+    }
+
+    .customer-row span:first-child {
+        color: #8a7768;
+        font-weight: 800;
+    }
+
+    .order-note {
+        background: #fffbeb;
+        color: #92400e;
+        border: 1px solid #fcd34d;
+        border-radius: 18px;
+        padding: 12px 14px;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 14px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .order-items-box {
+        background: #fffdf8;
+        border: 1px solid #ead6c4;
+        border-radius: 20px;
+        padding: 14px;
+        margin-bottom: 16px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .order-item-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 9px 0;
+        border-bottom: 1px dashed #ead6c4;
+        color: #2b160c;
+        font-size: 14px;
+    }
+
+    .order-item-row:last-child {
+        border-bottom: none;
+    }
+
+    .order-item-row span {
+        font-weight: 700;
+    }
+
+    .order-item-row strong {
+        color: #4b2c1b;
+        white-space: nowrap;
+    }
+
+    .total-row {
+        background: linear-gradient(135deg, #4b2c1b, #8b5e3c);
+        color: white;
+        border-radius: 20px;
+        padding: 15px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+        position: relative;
+        z-index: 2;
+    }
+
+    .total-row span:first-child {
+        color: #ead6c4;
+        font-weight: 800;
+    }
+
+    .total-row span:last-child {
+        font-size: 22px;
+        font-weight: 900;
+    }
+
+    .action-area {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 9px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .counter-action-btn {
+        border: none;
+        text-decoration: none;
+        border-radius: 15px;
+        padding: 10px 12px;
+        font-size: 13px;
+        font-weight: 900;
+        text-align: center;
+        transition: .25s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-height: 42px;
+    }
+
+    .counter-action-btn:hover {
+        transform: translateY(-3px);
+    }
+
+    .accept-btn { background: #dcfce7; color: #15803d; }
+    .cancel-btn { background: #fee2e2; color: #b91c1c; }
+    .served-btn { background: #dbeafe; color: #1d4ed8; }
+    .bill-btn { background: #1c120d; color: white; }
+    .kot-btn { background: #4b2c1b; color: white; }
+
+    .bill-btn:hover,
+    .kot-btn:hover {
+        color: white;
+    }
+
+    .payment-form {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 9px;
+        background: #fff3df;
+        border: 1px solid #ead6c4;
+        border-radius: 18px;
+        padding: 10px;
+    }
+
+    .payment-form select {
+        border-radius: 13px;
+        border: 1px solid #ead6c4;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .paid-btn {
+        border: none;
+        border-radius: 13px;
+        padding: 8px 13px;
+        background: #fef3c7;
+        color: #a16207;
+        font-weight: 900;
+    }
+
+    .empty-box {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 30px;
+        padding: 60px 20px;
+        text-align: center;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+    }
+
+    .empty-icon {
+        width: 90px;
+        height: 90px;
+        margin: 0 auto 16px;
+        border-radius: 28px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 42px;
+        box-shadow: 0 16px 35px rgba(75,44,27,.22);
+    }
+
+    .empty-box h4 {
+        color: #1c120d;
+        font-weight: 900;
+    }
+
+    .empty-box p {
+        color: #8a7768;
+        font-weight: 600;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 1400px) {
+        .counter-stats-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .orders-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .counter-hero {
+            padding: 24px;
+        }
+
+        .counter-hero h2 {
+            font-size: 26px;
+        }
+
+        .counter-stats-grid,
+        .orders-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .orders-toolbar {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .refresh-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 420px) {
+        .order-head {
+            flex-direction: column;
+        }
+
+        .action-area {
+            grid-template-columns: 1fr;
+        }
+
+        .payment-form {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="counter-dashboard">
+
+    <div class="counter-hero">
+        <div class="hero-label">
+            <i class="bi bi-cash-stack"></i>
+            Counter POS
+        </div>
+        <h2>Counter Dashboard</h2>
+        <p>
+            Track pending orders, ready orders, unpaid bills, running tables and today’s sales in one live counter screen.
+        </p>
+    </div>
+
+    <div class="counter-stats-grid">
+
+        <div class="counter-stat">
+            <div class="stat-icon icon-pending">
+                <i class="bi bi-hourglass-split"></i>
+            </div>
+            <p>Pending</p>
+            <h3>{{ pending_orders_count }}</h3>
+        </div>
+
+        <div class="counter-stat">
+            <div class="stat-icon icon-ready">
+                <i class="bi bi-check2-circle"></i>
+            </div>
+            <p>Ready</p>
+            <h3>{{ ready_orders_count }}</h3>
+        </div>
+
+        <div class="counter-stat">
+            <div class="stat-icon icon-unpaid">
+                <i class="bi bi-exclamation-circle"></i>
+            </div>
+            <p>Unpaid</p>
+            <h3>{{ unpaid_orders_count }}</h3>
+        </div>
+
+        <div class="counter-stat">
+            <div class="stat-icon icon-paid">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <p>Paid Today</p>
+            <h3>{{ paid_today_count }}</h3>
+        </div>
+
+        <div class="counter-stat">
+            <div class="stat-icon icon-table">
+                <i class="bi bi-table"></i>
+            </div>
+            <p>Running Tables</p>
+            <h3>{{ running_tables }}</h3>
+        </div>
+
+        <div class="counter-stat">
+            <div class="stat-icon icon-sales">
+                <i class="bi bi-currency-rupee"></i>
+            </div>
+            <p>Today Sales</p>
+            <h3>₹{{ today_sales }}</h3>
+        </div>
+
+    </div>
+
+    <div class="orders-toolbar">
+        <div class="toolbar-title">
+            <div class="toolbar-icon">
+                <i class="bi bi-receipt-cutoff"></i>
+            </div>
+            <div>
+                <h5>Live Counter Orders</h5>
+                <span>Serve orders, collect payment and print bills</span>
+            </div>
+        </div>
+
+        <a href="{% url 'counter_orders' %}" class="refresh-btn">
+            <i class="bi bi-arrow-clockwise"></i>
+            Refresh
+        </a>
+    </div>
+
+    {% if orders %}
+    <div class="orders-grid">
+
+        {% for order in orders %}
+        <div class="pos-card">
+
+            <div class="order-head">
+                <div>
+                    <h5>Order #{{ order.id }}</h5>
+                    <span class="table-pill">
+                        <i class="bi bi-table"></i>
+                        Table {{ order.table.table_number }}
+                    </span>
+                </div>
+
+                <span class="status-badge-lg status-{{ order.status|lower }}">
+                    {{ order.status }}
+                </span>
+            </div>
+
+            <div class="customer-box">
+                <div class="customer-row">
+                    <span>Customer</span>
+                    <strong>{{ order.customer_name|default:"Guest" }}</strong>
+                </div>
+
+                {% if order.customer_mobile %}
+                <div class="customer-row">
+                    <span>Mobile</span>
+                    <strong>{{ order.customer_mobile }}</strong>
+                </div>
+                {% endif %}
+
+                <div class="customer-row">
+                    <span>Payment</span>
+                    <span class="payment-badge payment-{{ order.payment_status|lower }}">
+                        {{ order.payment_status }}
+                    </span>
+                </div>
+            </div>
+
+            {% if order.note %}
+            <div class="order-note">
+                <i class="bi bi-chat-left-text"></i>
+                <strong>Note:</strong> {{ order.note }}
+            </div>
+            {% endif %}
+
+            <div class="order-items-box">
+                {% for item in order.items.all %}
+                <div class="order-item-row">
+                    <span>{{ item.menu_item.name }} × {{ item.quantity }}</span>
+                    <strong>₹{{ item.subtotal }}</strong>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="total-row">
+                <span>Total Amount</span>
+                <span>₹{{ order.total_amount }}</span>
+            </div>
+
+            <div class="action-area">
+
+                {% if order.status == "PENDING" %}
+                <a href="{% url 'order_accept' order.id %}" class="counter-action-btn accept-btn">
+                    <i class="bi bi-check-circle"></i>
+                    Accept
+                </a>
+
+                <a href="{% url 'order_cancel' order.id %}"
+                   onclick="return confirm('Cancel this order?')"
+                   class="counter-action-btn cancel-btn">
+                    <i class="bi bi-x-circle"></i>
+                    Cancel
+                </a>
+                {% endif %}
+
+                {% if order.status == "READY" %}
+                <a href="{% url 'order_served' order.id %}" class="counter-action-btn served-btn">
+                    <i class="bi bi-check2-all"></i>
+                    Served
+                </a>
+                {% endif %}
+
+                {% if order.payment_status == "UNPAID" %}
+                <form method="POST" action="{% url 'order_paid' order.id %}" class="payment-form">
+                    {% csrf_token %}
+
+                    <select name="payment_method" class="form-select form-select-sm">
+                        <option value="CASH">Cash</option>
+                        <option value="UPI">UPI</option>
+                        <option value="CARD">Card</option>
+                    </select>
+
+                    <button class="paid-btn">
+                        <i class="bi bi-cash-coin"></i>
+                        Paid
+                    </button>
+                </form>
+                {% endif %}
+
+                <a href="{% url 'billing_detail' order.id %}" class="counter-action-btn bill-btn">
+                    <i class="bi bi-receipt"></i>
+                    Bill
+                </a>
+
+                <a href="{% url 'kot_print' order.id %}" target="_blank" class="counter-action-btn kot-btn">
+                    <i class="bi bi-printer"></i>
+                    KOT
+                </a>
+
+            </div>
+
+        </div>
+        {% endfor %}
+
+    </div>
+    {% else %}
+
+    <div class="empty-box">
+        <div class="empty-icon">
+            <i class="bi bi-inbox"></i>
+        </div>
+        <h4>No active orders</h4>
+        <p class="mb-0">New customer orders will appear here.</p>
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

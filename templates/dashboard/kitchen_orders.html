@@ -1,0 +1,698 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Kitchen Dashboard{% endblock %}
+{% block page_title %}Kitchen Dashboard{% endblock %}
+{% block page_subtitle %}Prepare orders and update kitchen status{% endblock %}
+
+{% block content %}
+
+<style>
+    .kitchen-dashboard {
+        animation: fadeInUp .45s ease;
+    }
+
+    .kitchen-hero {
+        background:
+            linear-gradient(135deg, rgba(28,18,13,.92), rgba(75,44,27,.82)),
+            url("https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=1200&q=80");
+        background-size: cover;
+        background-position: center;
+        border-radius: 30px;
+        padding: 30px;
+        color: #fff8ef;
+        box-shadow: 0 22px 55px rgba(44,24,16,.22);
+        margin-bottom: 26px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .kitchen-hero::after {
+        content: "🔥";
+        position: absolute;
+        right: 30px;
+        top: 5px;
+        font-size: 110px;
+        opacity: .13;
+    }
+
+    .hero-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.13);
+        border: 1px solid rgba(255,255,255,.18);
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 14px;
+    }
+
+    .kitchen-hero h2 {
+        font-size: 34px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .kitchen-hero p {
+        margin: 0;
+        color: #ead6c4;
+        max-width: 680px;
+        font-weight: 500;
+    }
+
+    .kitchen-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 22px;
+        margin-bottom: 26px;
+    }
+
+    .kitchen-stat {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 26px;
+        padding: 22px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+        position: relative;
+        overflow: hidden;
+        transition: .28s ease;
+    }
+
+    .kitchen-stat:hover {
+        transform: translateY(-7px);
+        box-shadow: 0 28px 65px rgba(44,24,16,.16);
+    }
+
+    .kitchen-stat::after {
+        content: "";
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        position: absolute;
+        right: -34px;
+        top: -34px;
+        background: rgba(215,168,110,.18);
+    }
+
+    .stat-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 18px;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 23px;
+        box-shadow: 0 12px 28px rgba(75,44,27,.18);
+        margin-bottom: 14px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .icon-accepted {
+        background: linear-gradient(135deg, #1d4ed8, #60a5fa);
+    }
+
+    .icon-preparing {
+        background: linear-gradient(135deg, #c2410c, #f59e0b);
+    }
+
+    .icon-total {
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+    }
+
+    .kitchen-stat p {
+        color: #8a7768;
+        font-weight: 800;
+        font-size: 14px;
+        margin-bottom: 6px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .kitchen-stat h3 {
+        color: #1c120d;
+        font-weight: 900;
+        font-size: 34px;
+        margin: 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .kitchen-toolbar {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 26px;
+        padding: 18px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+        margin-bottom: 22px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .toolbar-title {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+    }
+
+    .toolbar-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 17px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+    }
+
+    .toolbar-title h5 {
+        margin: 0;
+        color: #1c120d;
+        font-weight: 900;
+        font-size: 20px;
+    }
+
+    .toolbar-title span {
+        color: #8a7768;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .refresh-btn {
+        border: none;
+        border-radius: 16px;
+        padding: 12px 20px;
+        font-weight: 900;
+        color: white;
+        background: linear-gradient(135deg, #4b2c1b, #8b5e3c);
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+        transition: .25s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .refresh-btn:hover {
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 18px 38px rgba(75,44,27,.28);
+    }
+
+    .kitchen-board {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+    }
+
+    .kitchen-column {
+        background: rgba(255,255,255,.65);
+        border: 1px dashed #d7a86e;
+        border-radius: 30px;
+        padding: 20px;
+        min-height: 420px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.08);
+    }
+
+    .column-title {
+        background: rgba(255,255,255,.85);
+        border: 1px solid #ead6c4;
+        border-radius: 22px;
+        padding: 14px 16px;
+        margin-bottom: 18px;
+        color: #1c120d;
+        font-weight: 900;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .column-title span:first-child {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+    }
+
+    .count-badge {
+        width: 34px;
+        height: 34px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 900;
+    }
+
+    .accepted-count {
+        background: #1d4ed8;
+    }
+
+    .preparing-count {
+        background: #f59e0b;
+        color: #1c120d;
+    }
+
+    .kitchen-card {
+        background: rgba(255,255,255,.94);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 28px;
+        padding: 20px;
+        margin-bottom: 18px;
+        box-shadow: 0 14px 38px rgba(44,24,16,.10);
+        border-left: 7px solid #1d4ed8;
+        position: relative;
+        overflow: hidden;
+        transition: .28s ease;
+    }
+
+    .kitchen-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 24px 55px rgba(44,24,16,.16);
+    }
+
+    .kitchen-card::after {
+        content: "🍳";
+        position: absolute;
+        right: -8px;
+        top: -25px;
+        font-size: 92px;
+        opacity: .06;
+    }
+
+    .kitchen-card.preparing {
+        border-left-color: #f59e0b;
+    }
+
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 15px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .order-header h4 {
+        color: #1c120d;
+        font-size: 22px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .table-badge {
+        background: #fff3df;
+        color: #4b2c1b;
+        border: 1px solid #ead6c4;
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-weight: 900;
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+        white-space: nowrap;
+        height: fit-content;
+    }
+
+    .status-badge::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .status-accepted {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .status-preparing {
+        background: #fef3c7;
+        color: #a16207;
+    }
+
+    .note-box {
+        background: #fffbeb;
+        color: #92400e;
+        border: 1px solid #fcd34d;
+        border-radius: 18px;
+        padding: 12px 14px;
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 14px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .kitchen-items {
+        background: #fffdf8;
+        border: 1px solid #ead6c4;
+        border-radius: 20px;
+        padding: 14px;
+        margin: 14px 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .kitchen-item {
+        padding: 12px 0;
+        border-bottom: 1px dashed #ead6c4;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .kitchen-item:last-child {
+        border-bottom: 0;
+    }
+
+    .item-name {
+        font-size: 16px;
+        font-weight: 900;
+        color: #1c120d;
+    }
+
+    .item-qty {
+        background: #1c120d;
+        color: white;
+        border-radius: 13px;
+        padding: 7px 12px;
+        font-size: 16px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .kitchen-action-btn {
+        border: none;
+        text-decoration: none;
+        border-radius: 16px;
+        padding: 12px 14px;
+        font-size: 14px;
+        font-weight: 900;
+        text-align: center;
+        transition: .25s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        margin-top: 9px;
+    }
+
+    .kitchen-action-btn:hover {
+        transform: translateY(-3px);
+    }
+
+    .prepare-btn {
+        background: #fef3c7;
+        color: #a16207;
+    }
+
+    .ready-btn {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .kot-btn {
+        background: #1c120d;
+        color: white;
+    }
+
+    .kot-btn:hover {
+        color: white;
+    }
+
+    .empty-kitchen {
+        background: rgba(255,255,255,.9);
+        border: 1px solid #ead6c4;
+        border-radius: 24px;
+        padding: 42px 20px;
+        text-align: center;
+        color: #8a7768;
+        font-weight: 600;
+    }
+
+    .empty-kitchen i {
+        font-size: 42px;
+        color: #d7a86e;
+        margin-bottom: 12px;
+    }
+
+    .empty-kitchen h5 {
+        color: #1c120d;
+        font-weight: 900;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 992px) {
+        .kitchen-board {
+            grid-template-columns: 1fr;
+        }
+
+        .kitchen-stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .kitchen-hero,
+        .kitchen-column {
+            padding: 22px;
+        }
+
+        .kitchen-hero h2 {
+            font-size: 26px;
+        }
+
+        .order-header {
+            flex-direction: column;
+        }
+
+        .kitchen-item {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="kitchen-dashboard">
+
+    <div class="kitchen-hero">
+        <div class="hero-label">
+            <i class="bi bi-fire"></i>
+            Kitchen Display System
+        </div>
+        <h2>Kitchen Dashboard</h2>
+        <p>
+            Manage new accepted orders, preparation queue and ready status from one clean kitchen screen.
+        </p>
+    </div>
+
+    <div class="kitchen-stats-grid">
+
+        <div class="kitchen-stat">
+            <div class="stat-icon icon-accepted">
+                <i class="bi bi-bell-fill"></i>
+            </div>
+            <p>New Accepted Orders</p>
+            <h3>{{ accepted_count }}</h3>
+        </div>
+
+        <div class="kitchen-stat">
+            <div class="stat-icon icon-preparing">
+                <i class="bi bi-hourglass-split"></i>
+            </div>
+            <p>Preparing Orders</p>
+            <h3>{{ preparing_count }}</h3>
+        </div>
+
+        <div class="kitchen-stat">
+            <div class="stat-icon icon-total">
+                <i class="bi bi-egg-fried"></i>
+            </div>
+            <p>Total Kitchen Orders</p>
+            <h3>{{ total_kitchen_orders }}</h3>
+        </div>
+
+    </div>
+
+    <div class="kitchen-toolbar">
+        <div class="toolbar-title">
+            <div class="toolbar-icon">
+                <i class="bi bi-kanban"></i>
+            </div>
+            <div>
+                <h5>Kitchen Display System</h5>
+                <span>Move orders from accepted to preparing and ready</span>
+            </div>
+        </div>
+
+        <a href="{% url 'kitchen_orders' %}" class="refresh-btn">
+            <i class="bi bi-arrow-clockwise"></i>
+            Refresh
+        </a>
+    </div>
+
+    <div class="kitchen-board">
+
+        <div class="kitchen-column">
+
+            <h5 class="column-title">
+                <span>
+                    <i class="bi bi-bell"></i>
+                    New Orders
+                </span>
+                <span class="count-badge accepted-count">{{ accepted_count }}</span>
+            </h5>
+
+            {% for order in accepted_orders %}
+            <div class="kitchen-card">
+
+                <div class="order-header">
+                    <div>
+                        <h4>Order #{{ order.id }}</h4>
+                        <span class="table-badge">
+                            <i class="bi bi-table"></i>
+                            Table {{ order.table.table_number }}
+                        </span>
+                    </div>
+
+                    <span class="status-badge status-accepted">Accepted</span>
+                </div>
+
+                {% if order.note %}
+                <div class="note-box">
+                    <i class="bi bi-chat-left-text"></i>
+                    Note: {{ order.note }}
+                </div>
+                {% endif %}
+
+                <div class="kitchen-items">
+                    {% for item in order.items.all %}
+                    <div class="kitchen-item">
+                        <div class="item-name">{{ item.menu_item.name }}</div>
+                        <div class="item-qty">× {{ item.quantity }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <a href="{% url 'order_preparing' order.id %}" class="kitchen-action-btn prepare-btn">
+                    <i class="bi bi-hourglass-split"></i>
+                    Mark Preparing
+                </a>
+
+                <a href="{% url 'kot_print' order.id %}" target="_blank" class="kitchen-action-btn kot-btn">
+                    <i class="bi bi-printer"></i>
+                    Print KOT
+                </a>
+
+            </div>
+            {% empty %}
+            <div class="empty-kitchen">
+                <i class="bi bi-inbox"></i>
+                <h5>No new accepted orders</h5>
+                <p class="mb-0">Accepted orders will appear here.</p>
+            </div>
+            {% endfor %}
+
+        </div>
+
+        <div class="kitchen-column">
+
+            <h5 class="column-title">
+                <span>
+                    <i class="bi bi-hourglass-split"></i>
+                    Preparing
+                </span>
+                <span class="count-badge preparing-count">{{ preparing_count }}</span>
+            </h5>
+
+            {% for order in preparing_orders %}
+            <div class="kitchen-card preparing">
+
+                <div class="order-header">
+                    <div>
+                        <h4>Order #{{ order.id }}</h4>
+                        <span class="table-badge">
+                            <i class="bi bi-table"></i>
+                            Table {{ order.table.table_number }}
+                        </span>
+                    </div>
+
+                    <span class="status-badge status-preparing">Preparing</span>
+                </div>
+
+                {% if order.note %}
+                <div class="note-box">
+                    <i class="bi bi-chat-left-text"></i>
+                    Note: {{ order.note }}
+                </div>
+                {% endif %}
+
+                <div class="kitchen-items">
+                    {% for item in order.items.all %}
+                    <div class="kitchen-item">
+                        <div class="item-name">{{ item.menu_item.name }}</div>
+                        <div class="item-qty">× {{ item.quantity }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <a href="{% url 'order_ready' order.id %}" class="kitchen-action-btn ready-btn">
+                    <i class="bi bi-check2-circle"></i>
+                    Mark Ready
+                </a>
+
+                <a href="{% url 'kot_print' order.id %}" target="_blank" class="kitchen-action-btn kot-btn">
+                    <i class="bi bi-printer"></i>
+                    Print KOT
+                </a>
+
+            </div>
+            {% empty %}
+            <div class="empty-kitchen">
+                <i class="bi bi-egg-fried"></i>
+                <h5>No preparing orders</h5>
+                <p class="mb-0">Orders being prepared will appear here.</p>
+            </div>
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

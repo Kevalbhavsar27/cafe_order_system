@@ -1,0 +1,669 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Edit Menu Item{% endblock %}
+{% block page_title %}Edit Menu Item{% endblock %}
+{% block page_subtitle %}Update menu item details, price, image and availability{% endblock %}
+
+{% block content %}
+
+<style>
+    .menu-page {
+        animation: fadeInUp .45s ease;
+    }
+
+    .menu-hero {
+        background:
+            linear-gradient(135deg, rgba(28,18,13,.92), rgba(75,44,27,.82)),
+            url("https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=80");
+        background-size: cover;
+        background-position: center;
+        border-radius: 30px;
+        padding: 30px;
+        color: #fff8ef;
+        box-shadow: 0 22px 55px rgba(44,24,16,.22);
+        margin-bottom: 26px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .menu-hero::after {
+        content: "✎";
+        position: absolute;
+        right: 30px;
+        top: 5px;
+        font-size: 120px;
+        opacity: .12;
+    }
+
+    .hero-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.13);
+        border: 1px solid rgba(255,255,255,.18);
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 14px;
+    }
+
+    .menu-hero h2 {
+        font-size: 34px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .menu-hero p {
+        margin: 0;
+        color: #ead6c4;
+        max-width: 680px;
+        font-weight: 500;
+    }
+
+    .menu-layout {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 24px;
+        align-items: start;
+    }
+
+    .menu-preview {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 28px;
+        padding: 24px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+        position: sticky;
+        top: 120px;
+        overflow: hidden;
+    }
+
+    .preview-image {
+        width: 100%;
+        height: 210px;
+        border-radius: 24px;
+        background:
+            linear-gradient(135deg, rgba(75,44,27,.75), rgba(215,168,110,.65)),
+            url("https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=900&q=80");
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 56px;
+        box-shadow: 0 16px 35px rgba(75,44,27,.22);
+        overflow: hidden;
+        margin-bottom: 18px;
+    }
+
+    .preview-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .preview-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        margin-bottom: 14px;
+        background: #fff3df;
+        color: #4b2c1b;
+        border: 1px solid #ead6c4;
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .menu-preview h4 {
+        color: #1c120d;
+        font-size: 22px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .menu-preview p {
+        color: #8a7768;
+        font-size: 14px;
+        line-height: 1.7;
+        margin-bottom: 16px;
+    }
+
+    .preview-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+    }
+
+    .preview-pill {
+        background: #fff8ef;
+        border: 1px solid #ead6c4;
+        color: #4b2c1b;
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .preview-price {
+        background: #1c120d;
+        color: white;
+        border-color: #1c120d;
+    }
+
+    .availability-preview {
+        margin-top: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .availability-preview.available {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .availability-preview.unavailable {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .menu-card {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 30px;
+        padding: 28px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 22px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #ead6c4;
+    }
+
+    .section-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 17px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+    }
+
+    .section-title h5 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 900;
+        color: #1c120d;
+    }
+
+    .section-title span {
+        color: #8a7768;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .form-label {
+        font-weight: 800;
+        color: #4b2c1b;
+        margin-bottom: 8px;
+    }
+
+    .menu-card .form-control,
+    .menu-card .form-select {
+        border-radius: 16px;
+        border: 1px solid #ead6c4;
+        background: #fffdf8;
+        padding: 13px 15px;
+        font-weight: 600;
+        color: #2b160c;
+    }
+
+    .menu-card textarea.form-control {
+        resize: none;
+    }
+
+    .menu-card .form-control:focus,
+    .menu-card .form-select:focus {
+        border-color: #d7a86e;
+        box-shadow: 0 0 0 .2rem rgba(215,168,110,.25);
+    }
+
+    .input-icon-box {
+        position: relative;
+    }
+
+    .input-icon-box i {
+        position: absolute;
+        left: 15px;
+        top: 44px;
+        color: #b77945;
+        font-size: 18px;
+    }
+
+    .input-icon-box .form-control,
+    .input-icon-box .form-select {
+        padding-left: 44px;
+    }
+
+    .image-upload-box {
+        border: 2px dashed #d7a86e;
+        background: #fff8ef;
+        border-radius: 22px;
+        padding: 22px;
+        transition: .25s ease;
+    }
+
+    .image-upload-box:hover {
+        background: #fff3df;
+        border-color: #b77945;
+    }
+
+    .image-upload-box small {
+        color: #8a7768;
+        font-weight: 600;
+    }
+
+    .available-box {
+        background: #fff8ef;
+        border: 1px solid #ead6c4;
+        border-radius: 22px;
+        padding: 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .available-box h6 {
+        font-weight: 900;
+        color: #1c120d;
+        margin-bottom: 4px;
+    }
+
+    .available-box p {
+        margin: 0;
+        color: #8a7768;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .form-switch .form-check-input {
+        width: 3.2rem;
+        height: 1.6rem;
+        cursor: pointer;
+    }
+
+    .form-switch .form-check-input:checked {
+        background-color: #4b2c1b;
+        border-color: #4b2c1b;
+    }
+
+    .form-actions {
+        margin-top: 24px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        border-top: 1px solid #ead6c4;
+        padding-top: 22px;
+    }
+
+    .save-btn {
+        border: none;
+        border-radius: 16px;
+        padding: 12px 22px;
+        font-weight: 900;
+        color: white;
+        background: linear-gradient(135deg, #4b2c1b, #8b5e3c);
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+        transition: .25s ease;
+    }
+
+    .save-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 18px 38px rgba(75,44,27,.28);
+    }
+
+    .back-btn {
+        border-radius: 16px;
+        padding: 12px 18px;
+        font-weight: 800;
+        border: 1px solid #ead6c4;
+        background: #fff8ef;
+        color: #4b2c1b;
+        text-decoration: none;
+    }
+
+    .back-btn:hover {
+        background: #fff3df;
+        color: #4b2c1b;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 992px) {
+        .menu-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .menu-preview {
+            position: relative;
+            top: 0;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .menu-hero,
+        .menu-card {
+            padding: 22px;
+        }
+
+        .menu-hero h2 {
+            font-size: 26px;
+        }
+
+        .available-box {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .form-actions {
+            justify-content: stretch;
+        }
+
+        .form-actions button,
+        .form-actions a {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="menu-page">
+
+    <div class="menu-hero">
+        <div class="hero-label">
+            <i class="bi bi-pencil-square"></i>
+            Edit Cafe Menu
+        </div>
+        <h2>Update {{ item.name }}</h2>
+        <p>
+            Modify category, item name, description, price, preparation time, image and availability.
+        </p>
+    </div>
+
+    <div class="menu-layout">
+
+        <div class="menu-preview">
+            <div class="preview-image" id="menuImagePreview">
+                {% if item.image %}
+                    <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                {% else %}
+                    <i class="bi bi-cup-hot-fill"></i>
+                {% endif %}
+            </div>
+
+            <div class="preview-badge">
+                <i class="bi bi-eye"></i>
+                Live Preview
+            </div>
+
+            <h4 id="previewName">{{ item.name }}</h4>
+
+            <p id="previewDescription">
+                {{ item.description|default:"No description added yet." }}
+            </p>
+
+            <div class="preview-meta">
+                <span class="preview-pill">
+                    <i class="bi bi-tags"></i>
+                    <span id="previewCategory">{{ item.category.name }}</span>
+                </span>
+
+                <span class="preview-pill preview-price">
+                    <i class="bi bi-currency-rupee"></i>
+                    <span id="previewPrice">{{ item.price }}</span>
+                </span>
+
+                <span class="preview-pill">
+                    <i class="bi bi-clock"></i>
+                    <span id="previewTime">{{ item.preparation_time }} min</span>
+                </span>
+            </div>
+
+            <div id="availabilityPreview" class="availability-preview {% if item.is_available %}available{% else %}unavailable{% endif %}">
+                <i class="bi {% if item.is_available %}bi-check-circle{% else %}bi-x-circle{% endif %}"></i>
+                <span>{% if item.is_available %}Available{% else %}Unavailable{% endif %}</span>
+            </div>
+        </div>
+
+        <div class="menu-card">
+
+            <div class="section-title">
+                <div class="section-icon">
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+                <div>
+                    <h5>Menu Item Information</h5>
+                    <span>Update item details below and save changes.</span>
+                </div>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="row g-4">
+
+                    <div class="col-md-6 input-icon-box">
+                        <label class="form-label">Category</label>
+                        <i class="bi bi-tags"></i>
+
+                        <select name="category"
+                                id="categoryInput"
+                                class="form-select"
+                                required>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}" {% if item.category.id == category.id %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 input-icon-box">
+                        <label class="form-label">Item Name</label>
+                        <i class="bi bi-cup-straw"></i>
+
+                        <input type="text"
+                               name="name"
+                               id="itemNameInput"
+                               class="form-control"
+                               value="{{ item.name }}"
+                               placeholder="Example: Cold Coffee"
+                               required>
+                    </div>
+
+                    <div class="col-md-12 input-icon-box">
+                        <label class="form-label">Description</label>
+                        <i class="bi bi-card-text"></i>
+
+                        <textarea name="description"
+                                  id="descriptionInput"
+                                  class="form-control"
+                                  rows="4"
+                                  placeholder="Example: Creamy cold coffee with chocolate topping.">{{ item.description }}</textarea>
+                    </div>
+
+                    <div class="col-md-6 input-icon-box">
+                        <label class="form-label">Price</label>
+                        <i class="bi bi-currency-rupee"></i>
+
+                        <input type="number"
+                               name="price"
+                               id="priceInput"
+                               class="form-control"
+                               value="{{ item.price }}"
+                               placeholder="Example: 99"
+                               required>
+                    </div>
+
+                    <div class="col-md-6 input-icon-box">
+                        <label class="form-label">Preparation Time</label>
+                        <i class="bi bi-clock"></i>
+
+                        <input type="number"
+                               name="preparation_time"
+                               id="timeInput"
+                               class="form-control"
+                               value="{{ item.preparation_time }}"
+                               placeholder="Minutes">
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Change Image</label>
+                        <div class="image-upload-box">
+                            <input type="file"
+                                   name="image"
+                                   id="imageInput"
+                                   class="form-control"
+                                   accept="image/*">
+
+                            <small class="d-block mt-2">
+                                Upload a new image only if you want to replace the current item image.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="available-box">
+                            <div>
+                                <h6>Item Availability</h6>
+                                <p>Turn off if this item is currently not available for customers.</p>
+                            </div>
+
+                            <div class="form-check form-switch m-0">
+                                <input type="checkbox"
+                                       name="is_available"
+                                       id="availableSwitch"
+                                       class="form-check-input"
+                                       {% if item.is_available %}checked{% endif %}>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+                    <a href="{% url 'menu_list' %}" class="back-btn">
+                        <i class="bi bi-arrow-left"></i>
+                        Back
+                    </a>
+
+                    <button class="save-btn" type="submit">
+                        <i class="bi bi-check-circle"></i>
+                        Update Menu Item
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const categoryInput = document.getElementById("categoryInput");
+        const itemNameInput = document.getElementById("itemNameInput");
+        const descriptionInput = document.getElementById("descriptionInput");
+        const priceInput = document.getElementById("priceInput");
+        const timeInput = document.getElementById("timeInput");
+        const imageInput = document.getElementById("imageInput");
+        const availableSwitch = document.getElementById("availableSwitch");
+
+        const previewCategory = document.getElementById("previewCategory");
+        const previewName = document.getElementById("previewName");
+        const previewDescription = document.getElementById("previewDescription");
+        const previewPrice = document.getElementById("previewPrice");
+        const previewTime = document.getElementById("previewTime");
+        const menuImagePreview = document.getElementById("menuImagePreview");
+        const availabilityPreview = document.getElementById("availabilityPreview");
+
+        categoryInput.addEventListener("change", function () {
+            const selectedText = this.options[this.selectedIndex].text;
+            previewCategory.innerText = selectedText || "Category";
+        });
+
+        itemNameInput.addEventListener("input", function () {
+            previewName.innerText = this.value || "Menu Item Name";
+        });
+
+        descriptionInput.addEventListener("input", function () {
+            previewDescription.innerText = this.value || "No description added yet.";
+        });
+
+        priceInput.addEventListener("input", function () {
+            previewPrice.innerText = this.value || "0";
+        });
+
+        timeInput.addEventListener("input", function () {
+            previewTime.innerText = (this.value || "0") + " min";
+        });
+
+        imageInput.addEventListener("change", function () {
+            const file = this.files[0];
+
+            if (!file) return;
+
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                menuImagePreview.innerHTML = `<img src="${e.target.result}" alt="Menu Item Image">`;
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+        availableSwitch.addEventListener("change", function () {
+            if (this.checked) {
+                availabilityPreview.className = "availability-preview available";
+                availabilityPreview.innerHTML = `<i class="bi bi-check-circle"></i><span>Available</span>`;
+            } else {
+                availabilityPreview.className = "availability-preview unavailable";
+                availabilityPreview.innerHTML = `<i class="bi bi-x-circle"></i><span>Unavailable</span>`;
+            }
+        });
+    });
+</script>
+
+{% endblock %}

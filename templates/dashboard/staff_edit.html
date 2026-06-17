@@ -1,0 +1,562 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Edit Staff{% endblock %}
+{% block page_title %}Edit Staff{% endblock %}
+{% block page_subtitle %}Update staff account, role, phone, password and active status{% endblock %}
+
+{% block content %}
+
+<style>
+    .staff-page {
+        animation: fadeInUp .45s ease;
+    }
+
+    .staff-hero {
+        background:
+            linear-gradient(135deg, rgba(28,18,13,.92), rgba(75,44,27,.82)),
+            url("https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=1200&q=80");
+        background-size: cover;
+        background-position: center;
+        border-radius: 30px;
+        padding: 30px;
+        color: #fff8ef;
+        box-shadow: 0 22px 55px rgba(44,24,16,.22);
+        margin-bottom: 26px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .staff-hero::after {
+        content: "✎";
+        position: absolute;
+        right: 30px;
+        top: 5px;
+        font-size: 120px;
+        opacity: .13;
+    }
+
+    .hero-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.13);
+        border: 1px solid rgba(255,255,255,.18);
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 14px;
+    }
+
+    .staff-hero h2 {
+        font-size: 34px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .staff-hero p {
+        margin: 0;
+        color: #ead6c4;
+        max-width: 680px;
+        font-weight: 500;
+    }
+
+    .staff-layout {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 24px;
+        align-items: start;
+    }
+
+    .staff-preview {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 28px;
+        padding: 24px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+        text-align: center;
+        position: sticky;
+        top: 120px;
+        overflow: hidden;
+    }
+
+    .avatar-preview {
+        width: 125px;
+        height: 125px;
+        border-radius: 36px;
+        margin: 0 auto 18px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        font-weight: 900;
+        box-shadow: 0 16px 35px rgba(75,44,27,.25);
+    }
+
+    .staff-preview h4 {
+        color: #1c120d;
+        font-size: 22px;
+        font-weight: 900;
+        margin-bottom: 6px;
+    }
+
+    .staff-preview p {
+        color: #8a7768;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 6px;
+        word-break: break-word;
+    }
+
+    .role-preview,
+    .account-status-preview {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        margin-top: 12px;
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .role-preview {
+        background: #fff3df;
+        color: #4b2c1b;
+        border: 1px solid #ead6c4;
+    }
+
+    .account-status-preview.active {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .account-status-preview.inactive {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .staff-card {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 30px;
+        padding: 28px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 22px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #ead6c4;
+    }
+
+    .section-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 17px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+    }
+
+    .section-title h5 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 900;
+        color: #1c120d;
+    }
+
+    .section-title span {
+        color: #8a7768;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .form-label {
+        font-weight: 800;
+        color: #4b2c1b;
+        margin-bottom: 8px;
+    }
+
+    .staff-card .form-control,
+    .staff-card .form-select {
+        border-radius: 16px;
+        border: 1px solid #ead6c4;
+        background: #fffdf8;
+        padding: 13px 15px;
+        font-weight: 600;
+        color: #2b160c;
+    }
+
+    .staff-card .form-control:focus,
+    .staff-card .form-select:focus {
+        border-color: #d7a86e;
+        box-shadow: 0 0 0 .2rem rgba(215,168,110,.25);
+    }
+
+    .input-icon-box {
+        position: relative;
+    }
+
+    .input-icon-box i {
+        position: absolute;
+        left: 15px;
+        top: 44px;
+        color: #b77945;
+        font-size: 18px;
+    }
+
+    .input-icon-box .form-control,
+    .input-icon-box .form-select {
+        padding-left: 44px;
+    }
+
+    .password-help {
+        background: #fff8ef;
+        border: 1px solid #ead6c4;
+        border-radius: 20px;
+        padding: 14px;
+        color: #8a7768;
+        font-size: 13px;
+        font-weight: 700;
+        margin-top: 4px;
+    }
+
+    .active-box {
+        background: #fff8ef;
+        border: 1px solid #ead6c4;
+        border-radius: 22px;
+        padding: 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .active-box h6 {
+        font-weight: 900;
+        color: #1c120d;
+        margin-bottom: 4px;
+    }
+
+    .active-box p {
+        margin: 0;
+        color: #8a7768;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .form-switch .form-check-input {
+        width: 3.2rem;
+        height: 1.6rem;
+        cursor: pointer;
+    }
+
+    .form-switch .form-check-input:checked {
+        background-color: #4b2c1b;
+        border-color: #4b2c1b;
+    }
+
+    .form-actions {
+        margin-top: 24px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        border-top: 1px solid #ead6c4;
+        padding-top: 22px;
+    }
+
+    .save-btn {
+        border: none;
+        border-radius: 16px;
+        padding: 12px 22px;
+        font-weight: 900;
+        color: white;
+        background: linear-gradient(135deg, #4b2c1b, #8b5e3c);
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+        transition: .25s ease;
+    }
+
+    .save-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 18px 38px rgba(75,44,27,.28);
+    }
+
+    .back-btn {
+        border-radius: 16px;
+        padding: 12px 18px;
+        font-weight: 800;
+        border: 1px solid #ead6c4;
+        background: #fff8ef;
+        color: #4b2c1b;
+        text-decoration: none;
+    }
+
+    .back-btn:hover {
+        background: #fff3df;
+        color: #4b2c1b;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 992px) {
+        .staff-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .staff-preview {
+            position: relative;
+            top: 0;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .staff-hero,
+        .staff-card {
+            padding: 22px;
+        }
+
+        .staff-hero h2 {
+            font-size: 26px;
+        }
+
+        .active-box {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .form-actions {
+            justify-content: stretch;
+        }
+
+        .form-actions button,
+        .form-actions a {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="staff-page">
+
+    <div class="staff-hero">
+        <div class="hero-label">
+            <i class="bi bi-pencil-square"></i>
+            Edit Staff Account
+        </div>
+        <h2>Update {{ profile.user.username }}</h2>
+        <p>
+            Modify staff username, email, phone, role, password and login account status.
+        </p>
+    </div>
+
+    <div class="staff-layout">
+
+        <div class="staff-preview">
+            <div class="avatar-preview" id="avatarPreview">
+                {{ profile.user.username|slice:":1"|upper }}
+            </div>
+
+            <h4 id="previewUsername">{{ profile.user.username }}</h4>
+            <p id="previewEmail">{{ profile.user.email|default:"No email added" }}</p>
+            <p id="previewPhone">{{ profile.phone|default:"No phone added" }}</p>
+
+            <div class="role-preview">
+                <i class="bi bi-shield-check"></i>
+                <span id="previewRole">
+                    {% if profile.role == "ADMIN" %}
+                        Admin
+                    {% elif profile.role == "COUNTER" %}
+                        Counter Staff
+                    {% elif profile.role == "KITCHEN" %}
+                        Kitchen Staff
+                    {% else %}
+                        {{ profile.role }}
+                    {% endif %}
+                </span>
+            </div>
+
+            <br>
+
+            <div id="accountStatusPreview" class="account-status-preview {% if profile.user.is_active %}active{% else %}inactive{% endif %}">
+                <i class="bi {% if profile.user.is_active %}bi-check-circle{% else %}bi-x-circle{% endif %}"></i>
+                <span>{% if profile.user.is_active %}Active Account{% else %}Inactive Account{% endif %}</span>
+            </div>
+        </div>
+
+        <div class="staff-card">
+
+            <div class="section-title">
+                <div class="section-icon">
+                    <i class="bi bi-person-gear"></i>
+                </div>
+                <div>
+                    <h5>Staff Information</h5>
+                    <span>Update staff account details below.</span>
+                </div>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="row g-4">
+
+                    <div class="col-md-6 input-icon-box">
+                        <label class="form-label">Username</label>
+                        <i class="bi bi-person"></i>
+                        <input type="text"
+                               name="username"
+                               id="usernameInput"
+                               class="form-control"
+                               value="{{ profile.user.username }}"
+                               required>
+                    </div>
+
+                    <div class="col-md-6 input-icon-box">
+                        <label class="form-label">Email</label>
+                        <i class="bi bi-envelope"></i>
+                        <input type="email"
+                               name="email"
+                               id="emailInput"
+                               class="form-control"
+                               value="{{ profile.user.email }}">
+                    </div>
+
+                    <div class="col-md-6 input-icon-box">
+                        <label class="form-label">Phone</label>
+                        <i class="bi bi-telephone"></i>
+                        <input type="text"
+                               name="phone"
+                               id="phoneInput"
+                               class="form-control"
+                               value="{{ profile.phone }}">
+                    </div>
+
+                    <div class="col-md-6 input-icon-box">
+                        <label class="form-label">Role</label>
+                        <i class="bi bi-shield-lock"></i>
+                        <select name="role"
+                                id="roleInput"
+                                class="form-select">
+                            <option value="ADMIN" {% if profile.role == "ADMIN" %}selected{% endif %}>Admin</option>
+                            <option value="COUNTER" {% if profile.role == "COUNTER" %}selected{% endif %}>Counter Staff</option>
+                            <option value="KITCHEN" {% if profile.role == "KITCHEN" %}selected{% endif %}>Kitchen Staff</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-12 input-icon-box">
+                        <label class="form-label">New Password Optional</label>
+                        <i class="bi bi-lock"></i>
+                        <input type="password"
+                               name="password"
+                               class="form-control"
+                               placeholder="Leave blank if no change">
+                        <div class="password-help">
+                            Only enter a password if you want to change this staff member’s login password.
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="active-box">
+                            <div>
+                                <h6>Account Status</h6>
+                                <p>Turn off if you want to disable this staff login account.</p>
+                            </div>
+
+                            <div class="form-check form-switch m-0">
+                                <input type="checkbox"
+                                       name="is_active"
+                                       id="activeSwitch"
+                                       class="form-check-input"
+                                       {% if profile.user.is_active %}checked{% endif %}>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+                    <a href="{% url 'staff_list' %}" class="back-btn">
+                        <i class="bi bi-arrow-left"></i>
+                        Back
+                    </a>
+
+                    <button class="save-btn" type="submit">
+                        <i class="bi bi-check-circle"></i>
+                        Update Staff
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const usernameInput = document.getElementById("usernameInput");
+        const emailInput = document.getElementById("emailInput");
+        const phoneInput = document.getElementById("phoneInput");
+        const roleInput = document.getElementById("roleInput");
+        const activeSwitch = document.getElementById("activeSwitch");
+
+        const avatarPreview = document.getElementById("avatarPreview");
+        const previewUsername = document.getElementById("previewUsername");
+        const previewEmail = document.getElementById("previewEmail");
+        const previewPhone = document.getElementById("previewPhone");
+        const previewRole = document.getElementById("previewRole");
+        const accountStatusPreview = document.getElementById("accountStatusPreview");
+
+        usernameInput.addEventListener("input", function () {
+            const value = this.value.trim();
+            previewUsername.innerText = value || "Staff Username";
+            avatarPreview.innerText = value ? value.charAt(0).toUpperCase() : "S";
+        });
+
+        emailInput.addEventListener("input", function () {
+            previewEmail.innerText = this.value || "No email added";
+        });
+
+        phoneInput.addEventListener("input", function () {
+            previewPhone.innerText = this.value || "No phone added";
+        });
+
+        roleInput.addEventListener("change", function () {
+            previewRole.innerText = this.options[this.selectedIndex].text;
+        });
+
+        activeSwitch.addEventListener("change", function () {
+            if (this.checked) {
+                accountStatusPreview.className = "account-status-preview active";
+                accountStatusPreview.innerHTML = `<i class="bi bi-check-circle"></i><span>Active Account</span>`;
+            } else {
+                accountStatusPreview.className = "account-status-preview inactive";
+                accountStatusPreview.innerHTML = `<i class="bi bi-x-circle"></i><span>Inactive Account</span>`;
+            }
+        });
+    });
+</script>
+
+{% endblock %}

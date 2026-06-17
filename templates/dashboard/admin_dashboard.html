@@ -1,0 +1,585 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+{% block page_title %}Admin Dashboard{% endblock %}
+{% block page_subtitle %}Today’s cafe performance, staff, tables and latest orders{% endblock %}
+
+{% block content %}
+
+<style>
+    .admin-dashboard {
+        animation: pageFade 0.45s ease;
+    }
+
+    .dashboard-hero {
+        background:
+            linear-gradient(135deg, rgba(28,18,13,.92), rgba(75,44,27,.82)),
+            url("https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=80");
+        background-size: cover;
+        background-position: center;
+        border-radius: 30px;
+        padding: 30px;
+        color: #fff8ef;
+        box-shadow: 0 22px 55px rgba(44,24,16,.22);
+        margin-bottom: 26px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dashboard-hero::after {
+        content: "☕";
+        position: absolute;
+        right: 28px;
+        top: 10px;
+        font-size: 120px;
+        opacity: .12;
+    }
+
+    .hero-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.13);
+        border: 1px solid rgba(255,255,255,.18);
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 14px;
+    }
+
+    .dashboard-hero h2 {
+        font-size: 34px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .dashboard-hero p {
+        margin: 0;
+        color: #ead6c4;
+        max-width: 650px;
+        font-weight: 500;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 22px;
+    }
+
+    .dashboard-stat-card {
+        background: rgba(255,255,255,.88);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 28px;
+        padding: 24px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+        position: relative;
+        overflow: hidden;
+        transition: .32s ease;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    .dashboard-stat-card.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .dashboard-stat-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 28px 65px rgba(44,24,16,.17);
+    }
+
+    .dashboard-stat-card::after {
+        content: "";
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        position: absolute;
+        right: -35px;
+        top: -35px;
+        background: rgba(215,168,110,.18);
+    }
+
+    .stat-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 18px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .stat-icon {
+        width: 58px;
+        height: 58px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 25px;
+        box-shadow: 0 12px 30px rgba(44,24,16,.18);
+    }
+
+    .stat-mini {
+        font-size: 12px;
+        font-weight: 900;
+        color: #8a7768;
+        background: #fff3df;
+        padding: 6px 10px;
+        border-radius: 999px;
+    }
+
+    .icon-staff {
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+    }
+
+    .icon-counter {
+        background: linear-gradient(135deg, #7c2d12, #f59e0b);
+    }
+
+    .icon-kitchen {
+        background: linear-gradient(135deg, #991b1b, #f97316);
+    }
+
+    .icon-table {
+        background: linear-gradient(135deg, #78350f, #b77945);
+    }
+
+    .icon-menu {
+        background: linear-gradient(135deg, #854d0e, #d7a86e);
+    }
+
+    .icon-orders {
+        background: linear-gradient(135deg, #1c120d, #8b5e3c);
+    }
+
+    .icon-pending {
+        background: linear-gradient(135deg, #c2410c, #f59e0b);
+    }
+
+    .dashboard-stat-card p {
+        margin: 0;
+        color: #8a7768;
+        font-size: 14px;
+        font-weight: 800;
+        position: relative;
+        z-index: 2;
+    }
+
+    .dashboard-stat-card h3 {
+        margin-top: 8px;
+        color: #1c120d;
+        font-size: 38px;
+        font-weight: 900;
+        position: relative;
+        z-index: 2;
+    }
+
+    .orders-card {
+        margin-top: 30px;
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 30px;
+        padding: 26px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+        overflow: hidden;
+    }
+
+    .orders-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .orders-title {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .orders-title-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+    }
+
+    .orders-header h5 {
+        margin: 0;
+        color: #1c120d;
+        font-size: 20px;
+        font-weight: 900;
+    }
+
+    .orders-header span {
+        color: #8a7768;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .orders-chip {
+        padding: 9px 14px;
+        border-radius: 999px;
+        background: #fff3df;
+        color: #4b2c1b;
+        font-size: 13px;
+        font-weight: 900;
+        border: 1px solid #ead6c4;
+        white-space: nowrap;
+    }
+
+    .cafe-table {
+        margin-bottom: 0;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+    .cafe-table thead th {
+        background: #fff3df;
+        color: #4b2c1b;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        border: none;
+        padding: 15px;
+    }
+
+    .cafe-table thead th:first-child {
+        border-radius: 16px 0 0 16px;
+    }
+
+    .cafe-table thead th:last-child {
+        border-radius: 0 16px 16px 0;
+    }
+
+    .cafe-table tbody tr {
+        background: #fffdf8;
+        box-shadow: 0 8px 22px rgba(44,24,16,.06);
+        transition: .25s ease;
+    }
+
+    .cafe-table tbody tr:hover {
+        transform: scale(1.01);
+        box-shadow: 0 12px 30px rgba(44,24,16,.11);
+    }
+
+    .cafe-table tbody td {
+        padding: 16px 15px;
+        color: #2b160c;
+        border: none;
+        font-weight: 650;
+    }
+
+    .cafe-table tbody td:first-child {
+        border-radius: 16px 0 0 16px;
+        font-weight: 900;
+        color: #4b2c1b;
+    }
+
+    .cafe-table tbody td:last-child {
+        border-radius: 0 16px 16px 0;
+        color: #1c120d;
+    }
+
+    .badge-status,
+    .badge-payment {
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .badge-status::before,
+    .badge-payment::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .status-pending {
+        background: #ffedd5;
+        color: #c2410c;
+    }
+
+    .status-completed,
+    .status-ready,
+    .status-served {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .status-cancelled {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .status-preparing {
+        background: #fef3c7;
+        color: #a16207;
+    }
+
+    .payment-paid {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .payment-unpaid {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .empty-orders {
+        padding: 45px 20px;
+        text-align: center;
+        color: #8a7768;
+    }
+
+    .empty-orders i {
+        font-size: 42px;
+        color: #d7a86e;
+        margin-bottom: 10px;
+    }
+
+    @keyframes pageFade {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 1200px) {
+        .stats-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-hero {
+            padding: 24px;
+        }
+
+        .dashboard-hero h2 {
+            font-size: 26px;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .orders-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .orders-card {
+            padding: 18px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .dashboard-stat-card h3 {
+            font-size: 32px;
+        }
+    }
+</style>
+
+<div class="admin-dashboard">
+
+    <div class="dashboard-hero">
+        <div class="hero-label">
+            <i class="bi bi-cup-hot-fill"></i>
+            Live Cafe Control Center
+        </div>
+        <h2>Welcome back, {{ request.user.username }}</h2>
+        <p>
+            Track staff, tables, menu items, orders and pending kitchen flow from one beautiful dashboard.
+        </p>
+    </div>
+
+    <div class="stats-grid">
+
+        <div class="dashboard-stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-staff">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <span class="stat-mini">TEAM</span>
+            </div>
+            <p>Total Staff</p>
+            <h3>{{ total_staff }}</h3>
+        </div>
+
+        <div class="dashboard-stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-counter">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+                <span class="stat-mini">BILLING</span>
+            </div>
+            <p>Counter Staff</p>
+            <h3>{{ total_counter }}</h3>
+        </div>
+
+        <div class="dashboard-stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-kitchen">
+                    <i class="bi bi-fire"></i>
+                </div>
+                <span class="stat-mini">KITCHEN</span>
+            </div>
+            <p>Kitchen Staff</p>
+            <h3>{{ total_kitchen }}</h3>
+        </div>
+
+        <div class="dashboard-stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-table">
+                    <i class="bi bi-grid-3x3-gap-fill"></i>
+                </div>
+                <span class="stat-mini">TABLES</span>
+            </div>
+            <p>Total Tables</p>
+            <h3>{{ total_tables }}</h3>
+        </div>
+
+        <div class="dashboard-stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-menu">
+                    <i class="bi bi-cup-hot-fill"></i>
+                </div>
+                <span class="stat-mini">MENU</span>
+            </div>
+            <p>Menu Items</p>
+            <h3>{{ total_menu_items }}</h3>
+        </div>
+
+        <div class="dashboard-stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-orders">
+                    <i class="bi bi-receipt-cutoff"></i>
+                </div>
+                <span class="stat-mini">ORDERS</span>
+            </div>
+            <p>Total Orders</p>
+            <h3>{{ total_orders }}</h3>
+        </div>
+
+        <div class="dashboard-stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-pending">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+                <span class="stat-mini">PENDING</span>
+            </div>
+            <p>Pending Orders</p>
+            <h3>{{ pending_orders }}</h3>
+        </div>
+
+    </div>
+
+    <div class="orders-card">
+
+        <div class="orders-header">
+            <div class="orders-title">
+                <div class="orders-title-icon">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <div>
+                    <h5>Recent Orders</h5>
+                    <span>Latest cafe order activity</span>
+                </div>
+            </div>
+
+            <div class="orders-chip">
+                <i class="bi bi-lightning-charge-fill"></i>
+                Live Orders
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table cafe-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Table</th>
+                        <th>Status</th>
+                        <th>Payment</th>
+                        <th class="text-end">Total</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr>
+                        <td>#{{ order.id }}</td>
+                        <td>
+                            <i class="bi bi-table me-1"></i>
+                            Table {{ order.table.table_number }}
+                        </td>
+                        <td>
+                            <span class="badge-status status-{{ order.status|lower }}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge-payment payment-{{ order.payment_status|lower }}">
+                                {{ order.payment_status }}
+                            </span>
+                        </td>
+                        <td class="text-end fw-bold">₹{{ order.total_amount }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5">
+                            <div class="empty-orders">
+                                <i class="bi bi-inbox"></i>
+                                <h6 class="fw-bold">No orders found</h6>
+                                <p class="mb-0">New orders will appear here.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const cards = document.querySelectorAll(".dashboard-stat-card");
+
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.classList.add("show");
+            }, index * 100);
+        });
+    });
+</script>
+
+{% endblock %}

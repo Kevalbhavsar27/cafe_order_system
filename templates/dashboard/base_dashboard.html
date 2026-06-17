@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{% block title %}Cafe Admin Panel{% endblock %}</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --coffee-dark: #1c120d;
+            --coffee: #4b2c1b;
+            --coffee-light: #8b5e3c;
+            --cream: #fff8ef;
+            --cream-2: #f4eadc;
+            --gold: #d7a86e;
+            --text: #23150f;
+            --muted: #8a7768;
+            --danger: #dc2626;
+            --shadow: 0 18px 45px rgba(44, 24, 16, 0.12);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Inter", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(215, 168, 110, .35), transparent 30%),
+                linear-gradient(135deg, #fff7ed, #f4eadc);
+        }
+
+        .dashboard-wrapper {
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 290px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 18px 14px;
+            background:
+                linear-gradient(180deg, rgba(28,18,13,.98), rgba(75,44,27,.97)),
+                url("https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80");
+            background-size: cover;
+            background-blend-mode: multiply;
+            color: white;
+            z-index: 1000;
+            box-shadow: 12px 0 35px rgba(44, 24, 16, .22);
+
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .sidebar-scroll::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .sidebar-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,.22);
+            border-radius: 50px;
+        }
+
+        .sidebar-bottom {
+            padding-top: 12px;
+            margin-top: 10px;
+            border-top: 1px solid rgba(255,255,255,.12);
+            background: linear-gradient(180deg, rgba(75,44,27,.15), rgba(28,18,13,.45));
+        }
+
+        .brand-box {
+            padding: 14px;
+            border-radius: 24px;
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.12);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .brand-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--gold), #8b5e3c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 12px 30px rgba(215,168,110,.35);
+        }
+
+        .brand-title {
+            font-family: "Playfair Display", serif;
+            font-size: 22px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .brand-subtitle {
+            font-size: 12px;
+            color: #e8d7c3;
+            margin: 0;
+        }
+
+        .menu-label {
+            font-size: 11px;
+            font-weight: 900;
+            color: #d7a86e;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            margin: 18px 12px 9px;
+        }
+
+        .sidebar a {
+            color: #f4eadc;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 12px 14px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 7px;
+            transition: all .25s ease;
+            border: 1px solid transparent;
+        }
+
+        .sidebar a i {
+            font-size: 18px;
+        }
+
+        .sidebar a:hover {
+            background: rgba(255,255,255,.12);
+            border-color: rgba(255,255,255,.15);
+            transform: translateX(5px);
+        }
+
+        .sidebar a.active {
+            background: linear-gradient(135deg, var(--gold), #b77945);
+            color: #2b160c;
+            box-shadow: 0 12px 28px rgba(215,168,110,.25);
+        }
+
+        .settings-link {
+            background: rgba(255,255,255,.08);
+        }
+
+        .logout-link {
+            color: #fecaca !important;
+            background: rgba(220,38,38,.16);
+        }
+
+        .logout-link:hover {
+            background: var(--danger) !important;
+            color: white !important;
+        }
+
+        .main-content {
+            margin-left: 290px;
+            width: calc(100% - 290px);
+            min-height: 100vh;
+            padding: 26px;
+        }
+
+        .topbar {
+            background: rgba(255,255,255,.78);
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(255,255,255,.7);
+            box-shadow: var(--shadow);
+            border-radius: 28px;
+            padding: 18px 22px;
+            margin-bottom: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            position: sticky;
+            top: 18px;
+            z-index: 50;
+        }
+
+        .mobile-toggle {
+            display: none;
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 15px;
+            background: var(--coffee);
+            color: white;
+            font-size: 22px;
+        }
+
+        .page-heading h4 {
+            margin: 0;
+            font-size: 25px;
+            font-weight: 900;
+            color: var(--coffee-dark);
+        }
+
+        .page-heading p {
+            margin: 4px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .quick-chip {
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: #fff3df;
+            color: var(--coffee);
+            font-size: 13px;
+            font-weight: 800;
+            border: 1px solid #ead6c4;
+        }
+
+        .user-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #fff8ef;
+            padding: 8px 12px;
+            border-radius: 18px;
+            border: 1px solid #ead6c4;
+        }
+
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--coffee), var(--gold));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 18px;
+        }
+
+        .role-badge {
+            display: inline-block;
+            margin-top: 2px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: var(--coffee-dark);
+            color: white;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .card-box,
+        .stat-card {
+            background: rgba(255,255,255,.86);
+            border: 1px solid rgba(234,214,196,.9);
+            border-radius: 26px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+            transition: .25s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 24px 55px rgba(44,24,16,.18);
+        }
+
+        .stat-card::after {
+            content: "☕";
+            position: absolute;
+            right: -6px;
+            top: -24px;
+            font-size: 95px;
+            opacity: .06;
+        }
+
+        .stat-card p {
+            color: var(--muted);
+            margin-bottom: 8px;
+            font-weight: 800;
+        }
+
+        .stat-card h3 {
+            color: var(--coffee);
+            font-weight: 900;
+            margin: 0;
+            font-size: 34px;
+        }
+
+        .btn-cafe {
+            background: linear-gradient(135deg, var(--coffee), var(--coffee-light));
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 11px 18px;
+            font-weight: 800;
+            box-shadow: 0 10px 25px rgba(75,44,27,.2);
+        }
+
+        .btn-cafe:hover {
+            color: white;
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #2d1a11, #7a4c2d);
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 15px;
+            padding: 11px 14px;
+            border: 1px solid #ead6c4;
+            background: #fffdf8;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 .2rem rgba(215,168,110,.25);
+        }
+
+        .table {
+            vertical-align: middle;
+        }
+
+        .table thead th {
+            background: #fff3df;
+            color: var(--coffee);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            border-bottom: none;
+            padding: 14px;
+        }
+
+        .table tbody td {
+            padding: 14px;
+            border-color: #f0dfcf;
+        }
+
+        .table tbody tr:hover {
+            background: #fff8ef;
+        }
+
+        .alert {
+            border-radius: 18px;
+            border: none;
+            font-weight: 700;
+            box-shadow: var(--shadow);
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 34px;
+            font-weight: 600;
+        }
+
+        .sidebar-overlay {
+            display: none;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                left: -290px;
+                transition: .3s ease;
+            }
+
+            .sidebar.show {
+                left: 0;
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,.45);
+                z-index: 900;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 16px;
+            }
+
+            .mobile-toggle {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .topbar {
+                top: 10px;
+            }
+
+            .quick-chip {
+                display: none;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .topbar-actions,
+            .user-box {
+                width: 100%;
+            }
+
+            .card-box,
+            .stat-card {
+                padding: 18px;
+            }
+
+            .page-heading h4 {
+                font-size: 22px;
+            }
+        }
+
+        @media print {
+            .sidebar,
+            .topbar,
+            .footer,
+            .no-print,
+            .sidebar-overlay {
+                display: none !important;
+            }
+
+            .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+                padding: 0 !important;
+            }
+
+            body {
+                background: white !important;
+            }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<div class="dashboard-wrapper">
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand-box">
+            <div class="brand-icon">
+                <i class="bi bi-cup-hot-fill"></i>
+            </div>
+            <div>
+                <p class="brand-title">Cafe Admin</p>
+                <p class="brand-subtitle">QR Ordering System</p>
+            </div>
+        </div>
+
+        <div class="sidebar-scroll">
+
+            {% if request.user.profile.role == "ADMIN" or request.user.is_superuser %}
+                <div class="menu-label">Admin</div>
+
+                <a href="{% url 'admin_dashboard' %}">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+
+                <a href="{% url 'reports_dashboard' %}">
+                    <i class="bi bi-bar-chart-line"></i> Reports
+                </a>
+
+                <a href="{% url 'order_history' %}">
+                    <i class="bi bi-clock-history"></i> Order History
+                </a>
+
+                <a href="{% url 'staff_list' %}">
+                    <i class="bi bi-people"></i> Staff
+                </a>
+
+                <a href="{% url 'tables_list' %}">
+                    <i class="bi bi-table"></i> Tables
+                </a>
+
+                <a href="{% url 'category_list' %}">
+                    <i class="bi bi-tags"></i> Categories
+                </a>
+
+                <a href="{% url 'menu_list' %}">
+                    <i class="bi bi-menu-button-wide"></i> Menu
+                </a>
+                <a href="{% url 'backup_restore' %}">
+    <i class="bi bi-database"></i> Backup
+</a>
+            {% endif %}
+
+            {% if request.user.profile.role == "ADMIN" or request.user.profile.role == "COUNTER" or request.user.is_superuser %}
+                <div class="menu-label">Counter</div>
+
+                <a href="{% url 'counter_orders' %}">
+                    <i class="bi bi-receipt"></i> Counter Orders
+                </a>
+            {% endif %}
+
+            {% if request.user.profile.role == "ADMIN" or request.user.profile.role == "KITCHEN" or request.user.is_superuser %}
+                <div class="menu-label">Kitchen</div>
+
+                <a href="{% url 'kitchen_orders' %}">
+                    <i class="bi bi-fire"></i> Kitchen Orders
+                </a>
+            {% endif %}
+
+            {% if request.user.profile.role == "ADMIN" or request.user.profile.role == "COUNTER" or request.user.is_superuser %}
+                <div class="menu-label">Billing</div>
+
+                <a href="{% url 'counter_orders' %}">
+                    <i class="bi bi-cash-stack"></i> Billing
+                </a>
+            {% endif %}
+
+        </div>
+
+        <div class="sidebar-bottom">
+
+            {% if request.user.profile.role == "ADMIN" or request.user.is_superuser %}
+                <a href="{% url 'cafe_settings' %}" class="settings-link">
+                    <i class="bi bi-gear"></i> Settings
+                </a>
+            {% endif %}
+
+            <a href="{% url 'staff_logout' %}" class="logout-link">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+
+        </div>
+
+    </aside>
+
+    <main class="main-content">
+
+        <div class="topbar no-print">
+            <div class="d-flex align-items-center gap-3">
+                <button class="mobile-toggle" onclick="toggleSidebar()" type="button">
+                    <i class="bi bi-list"></i>
+                </button>
+
+                <div class="page-heading">
+                    <h4>{% block page_title %}Dashboard{% endblock %}</h4>
+                    <p>{% block page_subtitle %}Manage cafe orders, tables, billing and kitchen flow{% endblock %}</p>
+                </div>
+            </div>
+
+            <div class="topbar-actions">
+                <div class="quick-chip">
+                    <i class="bi bi-clock"></i>
+                    <span id="liveClock">--:--</span>
+                </div>
+
+                <div class="user-box">
+                    <div class="user-avatar">
+                        {{ request.user.username|slice:":1"|upper }}
+                    </div>
+
+                    <div>
+                        <strong>{{ request.user.username }}</strong><br>
+                        <span class="role-badge">
+                            {% if request.user.profile.role %}
+                                {{ request.user.profile.role }}
+                            {% else %}
+                                ADMIN
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+
+        <div class="footer no-print">
+            © 2026 Cafe QR Ordering System • Powered by Technolic
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+    function toggleSidebar() {
+        document.getElementById("sidebar").classList.toggle("show");
+        document.getElementById("sidebarOverlay").classList.toggle("show");
+    }
+
+    function setActiveSidebarLink() {
+        const currentPath = window.location.pathname;
+        const links = document.querySelectorAll(".sidebar a");
+
+        links.forEach(link => {
+            if (link.getAttribute("href") === currentPath) {
+                link.classList.add("active");
+            }
+        });
+    }
+
+    function updateClock() {
+        const clock = document.getElementById("liveClock");
+        if (!clock) return;
+
+        const now = new Date();
+        clock.innerText = now.toLocaleTimeString("en-IN", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        setActiveSidebarLink();
+        updateClock();
+        setInterval(updateClock, 1000);
+    });
+</script>
+
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

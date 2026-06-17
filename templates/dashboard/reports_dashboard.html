@@ -1,0 +1,825 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Reports{% endblock %}
+{% block page_title %}Reports Dashboard{% endblock %}
+{% block page_subtitle %}Sales, orders and performance overview{% endblock %}
+
+{% block content %}
+
+<style>
+    .reports-page {
+        animation: fadeInUp .45s ease;
+    }
+
+    .reports-hero {
+        background:
+            linear-gradient(135deg, rgba(28,18,13,.92), rgba(75,44,27,.82)),
+            url("https://images.unsplash.com/photo-1556740758-90de374c12ad?auto=format&fit=crop&w=1200&q=80");
+        background-size: cover;
+        background-position: center;
+        border-radius: 30px;
+        padding: 30px;
+        color: #fff8ef;
+        box-shadow: 0 22px 55px rgba(44,24,16,.22);
+        margin-bottom: 26px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .reports-hero::after {
+        content: "📊";
+        position: absolute;
+        right: 30px;
+        top: 5px;
+        font-size: 110px;
+        opacity: .13;
+    }
+
+    .hero-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.13);
+        border: 1px solid rgba(255,255,255,.18);
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 14px;
+    }
+
+    .reports-hero h2 {
+        font-size: 34px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .reports-hero p {
+        margin: 0;
+        color: #ead6c4;
+        max-width: 700px;
+        font-weight: 500;
+    }
+
+    .export-card,
+    .chart-card,
+    .summary-card,
+    .table-card {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 30px;
+        padding: 26px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+        overflow: hidden;
+    }
+
+    .export-card {
+        margin-bottom: 24px;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        margin-bottom: 22px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #ead6c4;
+    }
+
+    .section-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 17px;
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+    }
+
+    .section-title h5 {
+        margin: 0;
+        color: #1c120d;
+        font-weight: 900;
+        font-size: 20px;
+    }
+
+    .section-title span {
+        color: #8a7768;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .export-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .export-btn {
+        border: none;
+        border-radius: 16px;
+        padding: 12px 18px;
+        font-weight: 900;
+        color: white;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: .25s ease;
+        box-shadow: 0 12px 28px rgba(75,44,27,.16);
+    }
+
+    .export-btn:hover {
+        color: white;
+        transform: translateY(-3px);
+    }
+
+    .orders-export {
+        background: linear-gradient(135deg, #4b2c1b, #8b5e3c);
+    }
+
+    .bills-export {
+        background: linear-gradient(135deg, #1c120d, #374151);
+    }
+
+    .sales-export {
+        background: linear-gradient(135deg, #15803d, #16a34a);
+    }
+
+    .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+
+    .chart-card {
+        min-height: 360px;
+    }
+
+    .chart-box {
+        height: 260px;
+        position: relative;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 22px;
+        margin-bottom: 24px;
+    }
+
+    .report-stat {
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 28px;
+        padding: 24px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+        position: relative;
+        overflow: hidden;
+        transition: .28s ease;
+    }
+
+    .report-stat:hover {
+        transform: translateY(-7px);
+        box-shadow: 0 28px 65px rgba(44,24,16,.16);
+    }
+
+    .report-stat::after {
+        content: "";
+        width: 105px;
+        height: 105px;
+        border-radius: 50%;
+        position: absolute;
+        right: -34px;
+        top: -34px;
+        background: rgba(215,168,110,.18);
+    }
+
+    .stat-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 18px;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 23px;
+        box-shadow: 0 12px 28px rgba(75,44,27,.18);
+        margin-bottom: 14px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .icon-revenue {
+        background: linear-gradient(135deg, #15803d, #22c55e);
+    }
+
+    .icon-week {
+        background: linear-gradient(135deg, #4b2c1b, #d7a86e);
+    }
+
+    .icon-month {
+        background: linear-gradient(135deg, #1c120d, #8b5e3c);
+    }
+
+    .icon-orders {
+        background: linear-gradient(135deg, #1d4ed8, #60a5fa);
+    }
+
+    .icon-count {
+        background: linear-gradient(135deg, #c2410c, #f59e0b);
+    }
+
+    .report-stat p {
+        color: #8a7768;
+        font-weight: 800;
+        font-size: 14px;
+        margin-bottom: 6px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .report-stat h3 {
+        color: #1c120d;
+        font-weight: 900;
+        font-size: 31px;
+        margin: 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+
+    .summary-row {
+        background: #fffdf8;
+        border: 1px solid #ead6c4;
+        border-radius: 18px;
+        padding: 14px 16px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #2b160c;
+        font-weight: 800;
+    }
+
+    .summary-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .status-pill,
+    .payment-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .status-pill::before,
+    .payment-pill::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .status-pending { background: #ffedd5; color: #c2410c; }
+    .status-accepted { background: #dbeafe; color: #1d4ed8; }
+    .status-preparing { background: #fef3c7; color: #a16207; }
+    .status-ready { background: #dcfce7; color: #15803d; }
+    .status-served { background: #e5e7eb; color: #111827; }
+    .status-cancelled { background: #fee2e2; color: #b91c1c; }
+    .payment-paid { background: #dcfce7; color: #15803d; }
+    .payment-unpaid { background: #fee2e2; color: #b91c1c; }
+
+    .report-tables-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+    }
+
+    .report-table {
+        margin-bottom: 0;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+    .report-table thead th {
+        background: #fff3df;
+        color: #4b2c1b;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        border: none;
+        padding: 14px;
+        white-space: nowrap;
+    }
+
+    .report-table thead th:first-child {
+        border-radius: 16px 0 0 16px;
+    }
+
+    .report-table thead th:last-child {
+        border-radius: 0 16px 16px 0;
+    }
+
+    .report-table tbody tr {
+        background: #fffdf8;
+        box-shadow: 0 8px 22px rgba(44,24,16,.06);
+        transition: .25s ease;
+    }
+
+    .report-table tbody tr:hover {
+        transform: scale(1.01);
+        box-shadow: 0 12px 30px rgba(44,24,16,.11);
+    }
+
+    .report-table tbody td {
+        padding: 14px;
+        border: none;
+        color: #2b160c;
+        font-weight: 700;
+        vertical-align: middle;
+    }
+
+    .report-table tbody td:first-child {
+        border-radius: 16px 0 0 16px;
+        color: #1c120d;
+        font-weight: 900;
+    }
+
+    .report-table tbody td:last-child {
+        border-radius: 0 16px 16px 0;
+    }
+
+    .empty-data {
+        text-align: center;
+        padding: 35px 15px;
+        color: #8a7768;
+        font-weight: 700;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 1200px) {
+        .charts-grid,
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .report-tables-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .reports-hero,
+        .export-card,
+        .chart-card,
+        .summary-card,
+        .table-card {
+            padding: 22px;
+        }
+
+        .reports-hero h2 {
+            font-size: 26px;
+        }
+
+        .charts-grid,
+        .stats-grid,
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .export-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="reports-page">
+
+    <div class="reports-hero">
+        <div class="hero-label">
+            <i class="bi bi-bar-chart-line"></i>
+            Cafe Analytics
+        </div>
+        <h2>Reports Dashboard</h2>
+        <p>
+            Monitor revenue, orders, payments, top-selling items and table performance from one powerful report view.
+        </p>
+    </div>
+
+    <div class="export-card">
+        <div class="section-title">
+            <div class="section-icon">
+                <i class="bi bi-cloud-arrow-down"></i>
+            </div>
+            <div>
+                <h5>Export Reports</h5>
+                <span>Download CSV reports for orders, bills and sales summary</span>
+            </div>
+        </div>
+
+        <div class="export-actions">
+            <a href="{% url 'export_orders_csv' %}" class="export-btn orders-export">
+                <i class="bi bi-filetype-csv"></i>
+                Export Orders CSV
+            </a>
+
+            <a href="{% url 'export_bills_csv' %}" class="export-btn bills-export">
+                <i class="bi bi-receipt"></i>
+                Export Bills CSV
+            </a>
+
+            <a href="{% url 'export_reports_csv' %}" class="export-btn sales-export">
+                <i class="bi bi-graph-up-arrow"></i>
+                Export Sales Summary CSV
+            </a>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+
+        <div class="chart-card">
+            <div class="section-title">
+                <div class="section-icon">
+                    <i class="bi bi-currency-rupee"></i>
+                </div>
+                <div>
+                    <h5>Revenue Summary</h5>
+                    <span>Revenue comparison</span>
+                </div>
+            </div>
+            <div class="chart-box">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <div class="section-title">
+                <div class="section-icon">
+                    <i class="bi bi-pie-chart"></i>
+                </div>
+                <div>
+                    <h5>Order Status</h5>
+                    <span>Status distribution</span>
+                </div>
+            </div>
+            <div class="chart-box">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <div class="section-title">
+                <div class="section-icon">
+                    <i class="bi bi-award"></i>
+                </div>
+                <div>
+                    <h5>Top Selling Items</h5>
+                    <span>Best item quantity sold</span>
+                </div>
+            </div>
+            <div class="chart-box">
+                <canvas id="topItemsChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="stats-grid">
+
+        <div class="report-stat">
+            <div class="stat-icon icon-revenue">
+                <i class="bi bi-currency-rupee"></i>
+            </div>
+            <p>Today Revenue</p>
+            <h3>₹{{ today_revenue }}</h3>
+        </div>
+
+        <div class="report-stat">
+            <div class="stat-icon icon-week">
+                <i class="bi bi-calendar-week"></i>
+            </div>
+            <p>Last 7 Days Revenue</p>
+            <h3>₹{{ week_revenue }}</h3>
+        </div>
+
+        <div class="report-stat">
+            <div class="stat-icon icon-month">
+                <i class="bi bi-calendar-month"></i>
+            </div>
+            <p>This Month Revenue</p>
+            <h3>₹{{ month_revenue }}</h3>
+        </div>
+
+        <div class="report-stat">
+            <div class="stat-icon icon-orders">
+                <i class="bi bi-receipt-cutoff"></i>
+            </div>
+            <p>Today Orders</p>
+            <h3>{{ today_orders_count }}</h3>
+        </div>
+
+        <div class="report-stat">
+            <div class="stat-icon icon-count">
+                <i class="bi bi-graph-up"></i>
+            </div>
+            <p>Last 7 Days Orders</p>
+            <h3>{{ week_orders_count }}</h3>
+        </div>
+
+        <div class="report-stat">
+            <div class="stat-icon icon-total">
+                <i class="bi bi-calendar-check"></i>
+            </div>
+            <p>This Month Orders</p>
+            <h3>{{ month_orders_count }}</h3>
+        </div>
+
+    </div>
+
+    <div class="summary-grid">
+
+        <div class="summary-card">
+            <div class="section-title">
+                <div class="section-icon">
+                    <i class="bi bi-list-check"></i>
+                </div>
+                <div>
+                    <h5>Order Status Summary</h5>
+                    <span>Current order status counts</span>
+                </div>
+            </div>
+
+            <div class="summary-row">
+                <span>Pending</span>
+                <span class="status-pill status-pending">{{ pending_orders }}</span>
+            </div>
+
+            <div class="summary-row">
+                <span>Accepted</span>
+                <span class="status-pill status-accepted">{{ accepted_orders }}</span>
+            </div>
+
+            <div class="summary-row">
+                <span>Preparing</span>
+                <span class="status-pill status-preparing">{{ preparing_orders }}</span>
+            </div>
+
+            <div class="summary-row">
+                <span>Ready</span>
+                <span class="status-pill status-ready">{{ ready_orders }}</span>
+            </div>
+
+            <div class="summary-row">
+                <span>Served</span>
+                <span class="status-pill status-served">{{ served_orders }}</span>
+            </div>
+
+            <div class="summary-row">
+                <span>Cancelled</span>
+                <span class="status-pill status-cancelled">{{ cancelled_orders }}</span>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="section-title">
+                <div class="section-icon">
+                    <i class="bi bi-wallet2"></i>
+                </div>
+                <div>
+                    <h5>Payment Summary</h5>
+                    <span>Paid and unpaid order count</span>
+                </div>
+            </div>
+
+            <div class="summary-row">
+                <span>Paid Orders</span>
+                <span class="payment-pill payment-paid">{{ paid_orders }}</span>
+            </div>
+
+            <div class="summary-row">
+                <span>Unpaid Orders</span>
+                <span class="payment-pill payment-unpaid">{{ unpaid_orders }}</span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="report-tables-grid">
+
+        <div class="table-card">
+            <div class="section-title">
+                <div class="section-icon">
+                    <i class="bi bi-trophy"></i>
+                </div>
+                <div>
+                    <h5>Top Selling Items</h5>
+                    <span>Items ranked by sold quantity and sales</span>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table report-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Qty Sold</th>
+                            <th>Total Sales</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in top_items %}
+                        <tr>
+                            <td>{{ item.menu_item__name }}</td>
+                            <td>{{ item.total_qty }}</td>
+                            <td>₹{{ item.total_sales }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3">
+                                <div class="empty-data">No sales data</div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="section-title">
+                <div class="section-icon">
+                    <i class="bi bi-table"></i>
+                </div>
+                <div>
+                    <h5>Most Used Tables</h5>
+                    <span>Table-wise orders and total amount</span>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table report-table">
+                    <thead>
+                        <tr>
+                            <th>Table</th>
+                            <th>Orders</th>
+                            <th>Total Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for table in table_report %}
+                        <tr>
+                            <td>Table {{ table.table__table_number }}</td>
+                            <td>{{ table.total_orders }}</td>
+                            <td>₹{{ table.total_amount }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3">
+                                <div class="empty-data">No table data</div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const revenueData = JSON.parse('{{ revenue_chart|escapejs }}');
+    const statusData = JSON.parse('{{ order_status_chart|escapejs }}');
+    const topItemsData = JSON.parse('{{ top_items_chart|escapejs }}');
+
+    Chart.defaults.font.family = "Inter, Arial, sans-serif";
+    Chart.defaults.color = "#4b2c1b";
+
+    new Chart(document.getElementById("revenueChart"), {
+        type: "bar",
+        data: {
+            labels: Object.keys(revenueData),
+            datasets: [{
+                label: "Revenue ₹",
+                data: Object.values(revenueData),
+                backgroundColor: ["#4b2c1b", "#d7a86e", "#15803d"],
+                borderRadius: 14,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    grid: { color: "rgba(75,44,27,.08)" }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+    new Chart(document.getElementById("statusChart"), {
+        type: "doughnut",
+        data: {
+            labels: Object.keys(statusData),
+            datasets: [{
+                data: Object.values(statusData),
+                backgroundColor: [
+                    "#F59E0B",
+                    "#3B82F6",
+                    "#06B6D4",
+                    "#22C55E",
+                    "#111827",
+                    "#EF4444"
+                ],
+                borderWidth: 4,
+                borderColor: "#fffdf8"
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: "62%",
+            plugins: {
+                legend: {
+                    position: "bottom",
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: 8,
+                        font: {
+                            weight: "700"
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    new Chart(document.getElementById("topItemsChart"), {
+        type: "bar",
+        data: {
+            labels: topItemsData.map(item => item.menu_item__name),
+            datasets: [{
+                label: "Qty Sold",
+                data: topItemsData.map(item => item.total_qty),
+                backgroundColor: "#4b2c1b",
+                borderRadius: 14,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            indexAxis: "y",
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    grid: { color: "rgba(75,44,27,.08)" }
+                },
+                y: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+</script>
+
+{% endblock %}

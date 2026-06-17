@@ -1,0 +1,434 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Backup & Restore{% endblock %}
+{% block page_title %}Backup & Restore{% endblock %}
+{% block page_subtitle %}Download and restore your cafe database safely{% endblock %}
+
+{% block content %}
+
+<style>
+    .backup-page {
+        animation: fadeInUp .45s ease;
+    }
+
+    .backup-hero {
+        background:
+            linear-gradient(135deg, rgba(28,18,13,.92), rgba(75,44,27,.82)),
+            url("https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=80");
+        background-size: cover;
+        background-position: center;
+        border-radius: 30px;
+        padding: 30px;
+        color: #fff8ef;
+        box-shadow: 0 22px 55px rgba(44,24,16,.22);
+        margin-bottom: 26px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .backup-hero::after {
+        content: "☁";
+        position: absolute;
+        right: 32px;
+        top: 0;
+        font-size: 120px;
+        opacity: .13;
+    }
+
+    .hero-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.13);
+        border: 1px solid rgba(255,255,255,.18);
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 14px;
+    }
+
+    .backup-hero h2 {
+        font-size: 34px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .backup-hero p {
+        margin: 0;
+        color: #ead6c4;
+        max-width: 680px;
+        font-weight: 500;
+    }
+
+    .backup-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+    }
+
+    .backup-card {
+        background: rgba(255,255,255,.92);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 30px;
+        padding: 28px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+        position: relative;
+        overflow: hidden;
+        transition: .28s ease;
+        min-height: 100%;
+    }
+
+    .backup-card:hover {
+        transform: translateY(-7px);
+        box-shadow: 0 28px 65px rgba(44,24,16,.16);
+    }
+
+    .backup-card::after {
+        position: absolute;
+        right: -8px;
+        top: -28px;
+        font-size: 100px;
+        opacity: .06;
+    }
+
+    .download-card::after {
+        content: "⬇";
+    }
+
+    .restore-card::after {
+        content: "⚠";
+    }
+
+    .card-header-box {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 18px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .card-icon {
+        width: 58px;
+        height: 58px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 25px;
+        box-shadow: 0 12px 28px rgba(75,44,27,.20);
+    }
+
+    .download-icon {
+        background: linear-gradient(135deg, #15803d, #22c55e);
+    }
+
+    .restore-icon {
+        background: linear-gradient(135deg, #b91c1c, #f97316);
+    }
+
+    .card-header-box h5 {
+        margin: 0;
+        font-size: 21px;
+        font-weight: 900;
+        color: #1c120d;
+    }
+
+    .card-header-box span {
+        color: #8a7768;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .backup-text {
+        color: #6f5b4d;
+        font-weight: 600;
+        line-height: 1.7;
+        margin-bottom: 22px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .info-list {
+        background: #fff8ef;
+        border: 1px solid #ead6c4;
+        border-radius: 22px;
+        padding: 16px;
+        margin-bottom: 22px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .info-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #4b2c1b;
+        font-size: 14px;
+        font-weight: 800;
+        padding: 7px 0;
+    }
+
+    .info-row i {
+        color: #b77945;
+        font-size: 17px;
+    }
+
+    .download-btn {
+        border: none;
+        border-radius: 16px;
+        padding: 13px 22px;
+        font-weight: 900;
+        color: white;
+        background: linear-gradient(135deg, #15803d, #16a34a);
+        box-shadow: 0 12px 28px rgba(21,128,61,.20);
+        transition: .25s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .download-btn:hover {
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 18px 38px rgba(21,128,61,.28);
+    }
+
+    .warning-box {
+        background: #fffbeb;
+        color: #92400e;
+        border: 1px solid #fcd34d;
+        border-radius: 20px;
+        padding: 15px;
+        font-size: 14px;
+        font-weight: 800;
+        line-height: 1.6;
+        margin-bottom: 22px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .upload-box {
+        border: 2px dashed #f97316;
+        background: #fff7ed;
+        border-radius: 22px;
+        padding: 22px;
+        transition: .25s ease;
+        position: relative;
+        z-index: 2;
+        margin-bottom: 20px;
+    }
+
+    .upload-box:hover {
+        background: #ffedd5;
+        border-color: #c2410c;
+    }
+
+    .upload-box label {
+        color: #4b2c1b;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .upload-box .form-control {
+        border-radius: 15px;
+        border: 1px solid #fed7aa;
+        background: white;
+        font-weight: 700;
+    }
+
+    .upload-box small {
+        color: #9a3412;
+        font-weight: 700;
+        display: block;
+        margin-top: 8px;
+    }
+
+    .restore-btn {
+        border: none;
+        border-radius: 16px;
+        padding: 13px 22px;
+        font-weight: 900;
+        color: white;
+        background: linear-gradient(135deg, #b91c1c, #dc2626);
+        box-shadow: 0 12px 28px rgba(185,28,28,.20);
+        transition: .25s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .restore-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 18px 38px rgba(185,28,28,.28);
+    }
+
+    .safety-note {
+        margin-top: 24px;
+        background: rgba(255,255,255,.9);
+        border: 1px solid rgba(234,214,196,.95);
+        border-radius: 26px;
+        padding: 18px;
+        box-shadow: 0 18px 45px rgba(44,24,16,.10);
+        color: #4b2c1b;
+        font-weight: 700;
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .safety-note i {
+        color: #d97706;
+        font-size: 22px;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 992px) {
+        .backup-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .backup-hero,
+        .backup-card {
+            padding: 22px;
+        }
+
+        .backup-hero h2 {
+            font-size: 26px;
+        }
+
+        .download-btn,
+        .restore-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="backup-page">
+
+    <div class="backup-hero">
+        <div class="hero-label">
+            <i class="bi bi-database-fill-gear"></i>
+            Database Safety
+        </div>
+        <h2>Backup & Restore</h2>
+        <p>
+            Download your cafe database backup or restore an existing backup when needed.
+        </p>
+    </div>
+
+    <div class="backup-grid">
+
+        <div class="backup-card download-card">
+            <div class="card-header-box">
+                <div class="card-icon download-icon">
+                    <i class="bi bi-download"></i>
+                </div>
+                <div>
+                    <h5>Download Backup</h5>
+                    <span>Save a copy of your current database</span>
+                </div>
+            </div>
+
+            <p class="backup-text">
+                Download a complete database backup including staff, menu, tables,
+                orders, bills and cafe settings.
+            </p>
+
+            <div class="info-list">
+                <div class="info-row">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Staff and user records
+                </div>
+                <div class="info-row">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Menu, categories and tables
+                </div>
+                <div class="info-row">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Orders, bills and reports data
+                </div>
+            </div>
+
+            <a href="{% url 'download_backup' %}" class="download-btn">
+                <i class="bi bi-cloud-arrow-down-fill"></i>
+                Download Database Backup
+            </a>
+        </div>
+
+        <div class="backup-card restore-card">
+            <div class="card-header-box">
+                <div class="card-icon restore-icon">
+                    <i class="bi bi-upload"></i>
+                </div>
+                <div>
+                    <h5>Restore Backup</h5>
+                    <span>Replace current database from backup</span>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                Restoring backup will replace your current database.
+                Download the latest backup before restoring.
+            </div>
+
+            <form method="POST" enctype="multipart/form-data"
+                  onsubmit="return confirm('Are you sure? Current database will be replaced.')">
+                {% csrf_token %}
+
+                <div class="upload-box">
+                    <label class="form-label">
+                        <i class="bi bi-file-earmark-database"></i>
+                        Upload SQLite Backup
+                    </label>
+
+                    <input type="file"
+                           name="backup_file"
+                           class="form-control"
+                           accept=".sqlite3,.db"
+                           required>
+
+                    <small>Allowed file types: .sqlite3, .db</small>
+                </div>
+
+                <button class="restore-btn" type="submit">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                    Restore Backup
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+    <div class="safety-note">
+        <i class="bi bi-shield-check"></i>
+        <div>
+            <strong>Recommended:</strong>
+            Always download a fresh backup before restore. Keep backup files safely on your computer or cloud storage.
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
